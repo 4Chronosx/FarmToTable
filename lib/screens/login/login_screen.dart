@@ -2,6 +2,7 @@
 
 import 'package:farm2you/commons.dart';
 import 'package:farm2you/screens/signup/signup_screen.dart';
+import 'package:farm2you/screens/user_side/main_home_screen/main_home_screen.dart';
 import 'package:farm2you/widgets/input_field.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -125,7 +126,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: screenWidth * 0.7,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MainHomeScreen()));
+                              },
                               style: ButtonStyle(
                                   backgroundColor: WidgetStateColor.fromMap({
                                     WidgetState.pressed:
