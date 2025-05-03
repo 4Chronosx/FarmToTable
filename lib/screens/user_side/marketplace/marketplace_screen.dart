@@ -1,0 +1,20 @@
+import 'package:farm2you/commons.dart';
+
+class MarketplaceScreen extends StatefulWidget {
+  const MarketplaceScreen({super.key});
+
+  @override
+  State<MarketplaceScreen> createState() => _MarketplaceScreenState();
+}
+
+class _MarketplaceScreenState extends State<MarketplaceScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        color: Colors.greenAccent,
+      ),
+      
+    );
+  }
+}

@@ -1,4 +1,4 @@
-import 'package:farm2you/screens/login/login_screen.dart';
+
 import 'package:farm2you/screens/splashscreen/splashscreen.dart';
 import 'package:flutter/material.dart';
 
