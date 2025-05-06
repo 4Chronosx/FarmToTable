@@ -1,7 +1,6 @@
 // ignore_for_file: sized_box_for_whitespace
 
 import 'package:farm2you/commons.dart';
-import 'package:farm2you/screens/login/login_screen.dart';
 import 'package:farm2you/widgets/input_field.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -268,7 +267,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                               GestureDetector(
                                 onTap: (){
-                                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const LoginScreen(), ));
+                                  context.go('/login');
                                 },
                                 child: Text(
                                   " Log in",

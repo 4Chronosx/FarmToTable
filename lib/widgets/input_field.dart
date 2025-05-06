@@ -1,9 +1,11 @@
-
-
 import 'package:farm2you/commons.dart';
 
-Container detailsInputField(double screenWidth, double screenHeight,
-    TextEditingController textEditingControllerVar, Icon myIcon, String placeholder) {
+Container detailsInputField(
+    double screenWidth,
+    double screenHeight,
+    TextEditingController textEditingControllerVar,
+    Icon myIcon,
+    String placeholder) {
   return Container(
     width: screenWidth * 0.7,
     height: 50,
@@ -16,10 +18,7 @@ Container detailsInputField(double screenWidth, double screenHeight,
             color: Color.fromRGBO(0, 0, 0, 0.24),
             blurRadius: 8,
             spreadRadius: 0,
-            offset: Offset(
-              0,
-              3,
-            ),
+            offset: Offset(0, 3),
           ),
         ]),
     child: Row(
@@ -31,14 +30,11 @@ Container detailsInputField(double screenWidth, double screenHeight,
             child: TextField(
               controller: textEditingControllerVar,
               style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 12,
-                fontWeight: FontWeight.normal
-              ),
+                  fontFamily: 'Poppins',
+                  fontSize: 12,
+                  fontWeight: FontWeight.normal),
               decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: placeholder
-              ),
+                  border: InputBorder.none, hintText: placeholder),
             ),
           ),
         ]),
