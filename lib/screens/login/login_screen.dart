@@ -1,8 +1,6 @@
 // ignore_for_file: sized_box_for_whitespace
 
 import 'package:farm2you/commons.dart';
-import 'package:farm2you/screens/signup/signup_screen.dart';
-import 'package:farm2you/screens/user_side/main_home_screen/main_home_screen.dart';
 import 'package:farm2you/widgets/input_field.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -127,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 50,
                             child: ElevatedButton(
                               onPressed: () {
-                                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MainHomeScreen()));
+                                context.go('/mainhomescreen');
                               },
                               style: ButtonStyle(
                                   backgroundColor: WidgetStateColor.fromMap({
@@ -261,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               GestureDetector(
                                 onTap: (){
-                                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const SignupScreen(), ));
+                                  context.go('/signup');
                                 },
                                 child: Text(
                                   " Sign up",

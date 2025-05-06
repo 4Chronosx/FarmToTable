@@ -1,6 +1,5 @@
 
 import 'package:farm2you/commons.dart';
-import 'package:farm2you/screens/login/login_screen.dart';
 import 'package:flutter/services.dart';
 
 class Splashscreen extends StatefulWidget {
@@ -17,7 +16,7 @@ class _SplashscreenState extends State<Splashscreen> with SingleTickerProviderSt
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     Future.delayed(Duration(seconds: 2), () {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
+      context.go('/login');
     });
   }
 

@@ -16,10 +16,12 @@ class ReusableSearchBar extends StatelessWidget {
       height: 50,
       width: width,
       child: SearchAnchor(
+        viewBackgroundColor: Colors.white,
         builder: (BuildContext context, SearchController controller) {
           return SearchBar(
             controller: controller,
             backgroundColor: WidgetStatePropertyAll<Color>(Colors.white),
+            elevation: WidgetStateProperty.all(2.0),
             padding: const WidgetStatePropertyAll<EdgeInsets>(
               EdgeInsets.symmetric(horizontal: 16.0),
             ),
@@ -43,6 +45,7 @@ class ReusableSearchBar extends StatelessWidget {
           return List<ListTile>.generate(5, (int index) {
             final String item = 'item $index';
             return ListTile(
+              tileColor: Colors.white,
               title: Text(item),
               onTap: () {
                 controller.closeView(item);
