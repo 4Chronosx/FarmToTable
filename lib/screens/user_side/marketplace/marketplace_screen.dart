@@ -1,5 +1,5 @@
 import 'package:farm2you/commons.dart';
-import 'package:farm2you/models/recommended_model.dart';
+import 'package:farm2you/models/product_model.dart';
 import 'package:farm2you/widgets/searchbar.dart';
 import '../../../models/category_model.dart';
 
@@ -12,7 +12,7 @@ class MarketplaceScreen extends StatefulWidget {
 
 class _MarketplaceScreenState extends State<MarketplaceScreen> {
   List<CategoryModel> categories = [];
-  List<RecommendedModel> recommendations = [];
+  List<ProductModel> products = [];
 
   void _getCategories() {
     setState(() {
@@ -20,9 +20,9 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     });
   }
 
-  void _getRecommendations() {
+  void _getProducts() {
     setState(() {
-      recommendations = RecommendedModel.getRecommendations();
+      products = ProductModel.getProducts(context);
     });
   }
 
@@ -30,7 +30,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   void initState() {
     super.initState();
     _getCategories();
-    _getRecommendations();
+    _getProducts();
   }
 
   @override
@@ -184,60 +184,74 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     return Container(
       height: 225,
       child: ListView.separated(
-          itemCount: recommendations.length,
+          itemCount: 5,
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.only(left: 20, right: 20),
           separatorBuilder: (context, index) => SizedBox(width: 20),
           itemBuilder: (context, index) {
-            return Container(
-              width: 200,
-              decoration: BoxDecoration(
-                  color: recommendations[index].bgColor,
-                  shape: BoxShape.rectangle,
-                  borderRadius: BorderRadius.circular(10)),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 180,
-                    height: 115,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Padding(
-                      padding: EdgeInsets.all(2.0),
-                      child: Image.asset(recommendations[index].imagePath),
+            return GestureDetector(
+              onTap: products[index].onTap,
+              child: Container(
+                width: 200,
+                decoration: BoxDecoration(
+                    color:
+                        index % 2 == 0 ? Color(0xFF77905B) : Color(0xFFFAE526),
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(10)),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 180,
+                      height: 115,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Padding(
+                        padding: EdgeInsets.all(2.0),
+                        child: CachedNetworkImage(
+                          imageUrl: products[index].imgPath,
+                          placeholder: (context, url) =>
+                              CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Text(recommendations[index].name,
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: recommendations[index].textColor)),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(recommendations[index].vendor,
-                      style: TextStyle(
-                          fontFamily: 'Lato',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w400,
-                          color: recommendations[index].textColor)),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(recommendations[index].price,
-                      style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          color: recommendations[index].textColor))
-                ],
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Text(products[index].name,
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color:
+                                index % 2 == 0 ? Colors.white : Colors.black)),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(products[index].vendor,
+                        style: TextStyle(
+                            fontFamily: 'Lato',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w400,
+                            color:
+                                index % 2 == 0 ? Colors.white : Colors.black)),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text('${products[index].price}/${products[index].unit}',
+                        style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color:
+                                index % 2 == 0 ? Colors.white : Colors.black))
+                  ],
+                ),
               ),
             );
           }),

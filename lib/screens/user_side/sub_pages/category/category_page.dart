@@ -33,9 +33,7 @@ class _CategoryPageState extends State<CategoryPage> {
     final List<ProductModel> thisCategoryProducts =
         products.where((item) => item.category == category.name).toList();
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         leading: IconButton(
             onPressed: () {
               context.pop();

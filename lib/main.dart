@@ -1,4 +1,5 @@
 import 'package:farm2you/models/category_model.dart';
+import 'package:farm2you/models/product_model.dart';
 import 'package:farm2you/screens/login/login_screen.dart';
 import 'package:farm2you/screens/signup/signup_screen.dart';
 import 'package:farm2you/screens/user_side/cart/cart_screen.dart';
@@ -92,7 +93,8 @@ final GoRouter _router = GoRouter(
         GoRoute(
           path: '/product_details',
           builder: (BuildContext context, GoRouterState state) {
-            return const ProductDetailsPage();
+             final product = state.extra as ProductModel;
+            return ProductDetailsPage(product : product);
           },
         ),
 
@@ -108,7 +110,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: Colors.white
+        )
+      ),
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
     );

@@ -1,8 +1,9 @@
 import 'package:farm2you/commons.dart';
-
+import 'package:farm2you/models/product_model.dart';
 
 class ProductDetailsPage extends StatefulWidget {
-  const ProductDetailsPage({super.key});
+  final ProductModel product;
+  const ProductDetailsPage({super.key, required this.product});
 
   @override
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
@@ -12,13 +13,191 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    return Container(
-      width: screenWidth,
-      height: screenHeight,
-      color: Colors.redAccent,
-
+    final product = widget.product;
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              context.pop();
+            },
+            icon: Icon(FontAwesomeIcons.arrowLeft)),
+      ),
+      body: Stack(children: [
+        SingleChildScrollView(
+          child: Container(
+              width: screenWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: screenWidth,
+                    height: 350,
+                    child: CachedNetworkImage(
+                      imageUrl: product.imgPath,
+                      placeholder: (context, url) =>
+                          CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 20),
+                    width: screenWidth,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        product.name,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 20),
+                    width: screenWidth,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${product.price}/${product.unit}',
+                        style: TextStyle(
+                          fontFamily: 'Lato',
+                          fontSize: 24,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Accordion(
+                      headerBorderColor: Colors.transparent,
+                      headerBorderWidth: 1,
+                      headerBackgroundColorOpened: Color(0xFF77905B),
+                      headerBackgroundColor: Color(0xFF77905B),
+                      contentBackgroundColor: Color(0xFFFAE526),
+                      contentBorderColor: Colors.transparent,
+                      contentVerticalPadding: 10,
+                      scaleWhenAnimating: true,
+                      openAndCloseAnimation: true,
+                      headerPadding:
+                          EdgeInsets.symmetric(vertical: 7, horizontal: 15),
+                      rightIcon: Icon(FontAwesomeIcons.caretDown, size: 20),
+                      children: [
+                        AccordionSection(
+                            isOpen: false,
+                            contentVerticalPadding: 20,
+                            header: Text(
+                              'Description',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFFFEE8C)),
+                            ),
+                            content: Text(
+                              product.description,
+                              textAlign: TextAlign.justify,
+                            )),
+                        AccordionSection(
+                            isOpen: false,
+                            contentVerticalPadding: 20,
+                            header: Text(
+                              'Source',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFFFEE8C)),
+                            ),
+                            content: Text(
+                              product.source,
+                              textAlign: TextAlign.justify,
+                            )),
+                        AccordionSection(
+                            isOpen: false,
+                            contentVerticalPadding: 20,
+                            header: Text(
+                              'Abour Vendor',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFFFEE8C)),
+                            ),
+                            content: Text(
+                              product.vendor,
+                              textAlign: TextAlign.justify,
+                            )),
+                      ]),
+                ],
+              )),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                      backgroundColor:
+                          WidgetStatePropertyAll(Color(0xFFF0D003)),
+                      iconColor: WidgetStatePropertyAll(Colors.black),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0))),
+                      fixedSize:
+                          WidgetStatePropertyAll(Size(screenWidth * 0.5, 70))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Add to cart  ',
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black),
+                      ),
+                      Icon(FontAwesomeIcons.cartShopping)
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                      backgroundColor:
+                          WidgetStatePropertyAll(Color(0xFF394E2C)),
+                      iconColor: WidgetStatePropertyAll(Colors.white),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0))),
+                      fixedSize:
+                          WidgetStatePropertyAll(Size(screenWidth * 0.5, 70))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Buy now  ',
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white),
+                      ),
+                      Icon(FontAwesomeIcons.moneyBillTransfer)
+                    ],
+                  ),
+                ),
+              ]),
+        )
+      ]),
     );
   }
 }
