@@ -12,22 +12,10 @@ class ProductDetailsPage extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int quantity = 0;
 
-  void increaseQuant() {
-    if (quantity >= 100) {
-      return;
-    }
-    setState(() {
-      quantity++;
-    });
-  }
-
-  void decreaseQuant() {
-    if (quantity < 0) {
-      return;
-    }
-    setState(() {
-      quantity--;
-    });
+  @override
+  void initState() {
+    super.initState();
+    quantity = 0;
   }
 
   @override
@@ -194,98 +182,126 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     showModalBottomSheet(
                         context: context,
                         builder: (BuildContext context) {
-                          return SizedBox(
-                            height: 200,
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.only(left: 20),
-                                    width: screenWidth,
-                                    height: 30,
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text('Item: ${product.name}'),
+                          return StatefulBuilder(builder: (BuildContext context,
+                              StateSetter setModalState) {
+                            void increaseQuant() {
+                              if (quantity >= 100) {
+                                return;
+                              }
+                              setModalState(() {
+                                quantity++;
+                              });
+                            }
+
+                            void decreaseQuant() {
+                              if (quantity <= 0) {
+                                return;
+                              }
+                              setModalState(() {
+                                quantity--;
+                              });
+                            }
+
+                            return SizedBox(
+                              height: 200,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.only(left: 20),
+                                      width: screenWidth,
+                                      height: 30,
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text('Item: ${product.name}'),
+                                      ),
                                     ),
-                                  ),
-                                  Container(
-                                    width: screenWidth,
-                                    height: 30,
-                                    padding: EdgeInsets.only(left: 20),
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                          'price: ${product.price}/${product.unit}'),
+                                    Container(
+                                      width: screenWidth,
+                                      height: 30,
+                                      padding: EdgeInsets.only(left: 20),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                            'price: ${product.price}/${product.unit}'),
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 20),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text('Quantity'),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            ElevatedButton(
-                                              onPressed: decreaseQuant,
-                                              style: ButtonStyle(
-                                                minimumSize:
-                                                    WidgetStatePropertyAll(
-                                                        Size(20, 20)),
-                                                padding: WidgetStatePropertyAll(
-                                                    EdgeInsets.zero),
-                                                shape: WidgetStatePropertyAll(
-                                                  RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(0),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 20),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text('Quantity'),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: decreaseQuant,
+                                                style: ButtonStyle(
+                                                  minimumSize:
+                                                      WidgetStatePropertyAll(
+                                                          Size(20, 20)),
+                                                  padding:
+                                                      WidgetStatePropertyAll(
+                                                          EdgeInsets.zero),
+                                                  shape: WidgetStatePropertyAll(
+                                                    RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              0),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              child: Icon(
-                                                FontAwesomeIcons.minus,
-                                                size: 10,
-                                              ),
-                                            ),
-                                            Text('$quantity'),
-                                            ElevatedButton(
-                                              onPressed: increaseQuant,
-                                              style: ButtonStyle(
-                                                minimumSize:
-                                                    WidgetStatePropertyAll(
-                                                        Size(20, 20)),
-                                                padding: WidgetStatePropertyAll(
-                                                    EdgeInsets.zero),
-                                                shape: WidgetStatePropertyAll(
-                                                  RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(0),
-                                                  ),
+                                                child: Icon(
+                                                  FontAwesomeIcons.minus,
+                                                  size: 10,
                                                 ),
                                               ),
-                                              child: Icon(
-                                                FontAwesomeIcons.plus,
-                                                size: 10,
+                                              Text('$quantity'),
+                                              ElevatedButton(
+                                                onPressed: increaseQuant,
+                                                style: ButtonStyle(
+                                                  minimumSize:
+                                                      WidgetStatePropertyAll(
+                                                          Size(20, 20)),
+                                                  padding:
+                                                      WidgetStatePropertyAll(
+                                                          EdgeInsets.zero),
+                                                  shape: WidgetStatePropertyAll(
+                                                    RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              0),
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Icon(
+                                                  FontAwesomeIcons.plus,
+                                                  size: 10,
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  )
-                                ],
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          });
                         });
+                    setState(() {
+                      quantity = 0;
+                    });
                   },
                   style: ButtonStyle(
                       backgroundColor:
