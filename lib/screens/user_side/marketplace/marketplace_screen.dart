@@ -211,7 +211,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                       child: Padding(
                         padding: EdgeInsets.all(2.0),
                         child: CachedNetworkImage(
-                          imageUrl: products[index].imgPath,
+                          imageUrl: '',
                           placeholder: (context, url) =>
                               CircularProgressIndicator(),
                           errorWidget: (context, url, error) =>
