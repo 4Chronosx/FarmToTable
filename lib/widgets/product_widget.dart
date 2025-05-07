@@ -33,7 +33,7 @@ Container productWidget(double screenWidth, ProductModel item) {
               padding: EdgeInsets.all(2.0),
               child: Center(
                 child: CachedNetworkImage(
-                  imageUrl: item.imgPath,
+                  imageUrl: '',
                   placeholder: (context, url) => CircularProgressIndicator(),
                   errorWidget: (context, url, error) => Icon(Icons.error),
                   fit: BoxFit.cover,
