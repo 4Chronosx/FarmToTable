@@ -53,7 +53,7 @@ class _CategoryPageState extends State<CategoryPage> {
               SizedBox(
                 height: 20,
               ),
-              ReusableSearchBar(width: screenWidth * 0.8),
+              ProductSearchBar(screenWidth: screenWidth, products: thisCategoryProducts),
               SizedBox(
                 height: 20,
               ),

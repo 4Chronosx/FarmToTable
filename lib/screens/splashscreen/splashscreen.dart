@@ -15,8 +15,12 @@ class _SplashscreenState extends State<Splashscreen> with SingleTickerProviderSt
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
-    Future.delayed(Duration(seconds: 2), () {
-      context.go('/login');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(Duration(seconds: 2), () {
+        if (mounted) {
+          context.go('/login');
+        }
+      });
     });
   }
 

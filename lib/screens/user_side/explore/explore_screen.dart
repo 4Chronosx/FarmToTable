@@ -44,7 +44,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             alignment: Alignment.topCenter,
             child: Padding(
               padding: const EdgeInsets.only(top: 100),
-              child: ReusableSearchBar(width: screenWidth * 0.8),
+              
             )
           ),
         ],

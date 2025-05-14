@@ -1,4 +1,5 @@
 import 'package:farm2you/commons.dart';
+import 'package:go_router/go_router.dart'; // Import GoRouter
 
 class ProductModel {
   String name;
@@ -6,6 +7,7 @@ class ProductModel {
   String source;
   String category;
   String vendor;
+  String vendorId;
   String imgPath;
   double price;
   String unit;
@@ -18,6 +20,7 @@ class ProductModel {
       required this.source,
       required this.category,
       required this.vendor,
+      required this.vendorId,
       required this.imgPath,
       required this.price,
       required this.unit,
@@ -34,6 +37,7 @@ class ProductModel {
             "A cultivar originating from the Philippines, known for its superior taste and quality.",
         "category": "Fruits",
         "vendor": "The Mango Farm",
+        "vendorId": "mango_farm_123",
         "imgPath":
             "https://fishnchix.ph/cdn/shop/products/innovativete.jpg?v=1630309716",
         "price": 100.00,
@@ -48,6 +52,7 @@ class ProductModel {
             "Native to the Americas, but now cultivated in various tropical regions worldwide.",
         "category": "Fruits",
         "vendor": "The DragonFruit Farm",
+        "vendorId": "dragon_farm_456",
         "imgPath":
             "https://ever.ph/cdn/shop/files/200000085142-Dizon-Dragon-Fruit-500g-700g-20210802_d3f4b11f-e6f7-41b4-b8a4-acaae1839ec7.jpg?v=1738215010",
         "price": 120.00,
@@ -62,6 +67,7 @@ class ProductModel {
             "Believed to have originated in Italy, specifically the Calabria region, hence its name.",
         "category": "Vegetables",
         "vendor": "The Vegetable Farm",
+        "vendorId": "veg_farm_789",
         "imgPath":
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQu1BE-zNy7egcpfeMTR-e7io7Px5g8SNS6WA&s",
         "price": 90.00,
@@ -76,7 +82,9 @@ class ProductModel {
             "Developed in the Nantes region of France, prized for their quality and flavor.",
         "category": "Vegetables",
         "vendor": "The Vegetable Farm",
-        "imgPath": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Vegetable-Carrot-Bundle-wStalks.jpg/960px-Vegetable-Carrot-Bundle-wStalks.jpg",
+        "vendorId": "veg_farm_789",
+        "imgPath":
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Vegetable-Carrot-Bundle-wStalks.jpg/960px-Vegetable-Carrot-Bundle-wStalks.jpg",
         "price": 90.00,
         "unit": "kg",
         "id": 4
@@ -89,7 +97,9 @@ class ProductModel {
             "Derived from older, traditional breeds of pigs that have distinct genetic traits.",
         "category": "Meat",
         "vendor": "The Meat Farm",
-        "imgPath": "https://images.squarespace-cdn.com/content/v1/595aae4ba5790a1570953b2b/1508882502097-I22XOFNR4QQA2ZZ9Y01Y/Heritage-Berkshire-Pork.jpg",
+        "vendorId": "meat_farm_012",
+        "imgPath":
+            "https://images.squarespace-cdn.com/content/v1/595aae4ba5790a1570953b2b/1508882502097-I22XOFNR4QQA2ZZ9Y01Y/Heritage-Berkshire-Pork.jpg",
         "price": 300.00,
         "unit": "kg",
         "id": 5
@@ -102,7 +112,9 @@ class ProductModel {
             "From cattle raised on a diet consisting mainly of grass and other forage, rather than grains.",
         "category": "Meat",
         "vendor": "The Meat Farm",
-        "imgPath": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjyRyy_29T-1XBtm2brki2TGgi_7jVB-BFQg&s",
+        "vendorId": "meat_farm_012",
+        "imgPath":
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjyRyy_29T-1XBtm2brki2TGgi_7jVB-BFQg&s",
         "price": 300.00,
         "unit": "kg",
         "id": 6
@@ -115,7 +127,9 @@ class ProductModel {
             "An ancient breed originating from the island of Java in Indonesia.",
         "category": "Poultry",
         "vendor": "The Poultry Farm",
-        "imgPath": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6bM7g6-J-7GqL4MiPm6Sc-ZOk0W_G3a5xOA&s",
+        "vendorId": "poultry_farm_345",
+        "imgPath":
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6bM7g6-J-7GqL4MiPm6Sc-ZOk0W_G3a5xOA&s",
         "price": 300.00,
         "unit": "kg",
         "id": 7
@@ -128,7 +142,9 @@ class ProductModel {
             "A cultivar widely grown in the Philippines, favored for its taste and texture.",
         "category": "Fruits",
         "vendor": "The Banana Plantation",
-        "imgPath": "https://sunnyfreshdelivery.com/cdn/shop/products/13.BANANALAKATAN.png?v=1631516000",
+        "vendorId": "banana_plant_678",
+        "imgPath":
+            "https://sunnyfreshdelivery.com/cdn/shop/products/13.BANANALAKATAN.png?v=1631516000",
         "price": 40.00,
         "unit": "kg",
         "id": 8
@@ -141,7 +157,9 @@ class ProductModel {
             "Seeds that have been saved and passed down through families or communities for many generations.",
         "category": "Vegetables",
         "vendor": "The Tomato Patch",
-        "imgPath": "https://upload.wikimedia.org/wikipedia/commons/8/89/Tomato_je.jpg",
+        "vendorId": "tomato_patch_901",
+        "imgPath":
+            "https://upload.wikimedia.org/wikipedia/commons/8/89/Tomato_je.jpg",
         "price": 60.00,
         "unit": "kg",
         "id": 9
@@ -154,7 +172,9 @@ class ProductModel {
             "The leaves of the coriander plant (Coriandrum sativum), widely used in Mexican and other cuisines.",
         "category": "Herbs",
         "vendor": "The Herb Garden",
-        "imgPath": "https://wholesale.fresherproduce.ca/storage/images/product/640a3c504c8e3_1678392400.jpg",
+        "vendorId": "herb_garden_234",
+        "imgPath":
+            "https://wholesale.fresherproduce.ca/storage/images/product/640a3c504c8e3_1678392400.jpg",
         "price": 150.00,
         "unit": "kg",
         "id": 10
@@ -166,7 +186,9 @@ class ProductModel {
         "source": "A long-grain aromatic rice originally from Thailand.",
         "category": "Grains",
         "vendor": "The Grain Mill",
-        "imgPath": "https://upload.wikimedia.org/wikipedia/commons/0/08/2014_uncooked_Thai_jasmine_rice.jpg",
+        "vendorId": "grain_mill_567",
+        "imgPath":
+            "https://upload.wikimedia.org/wikipedia/commons/0/08/2014_uncooked_Thai_jasmine_rice.jpg",
         "price": 50.00,
         "unit": "kg",
         "id": 11
@@ -179,6 +201,7 @@ class ProductModel {
             "Fresh milk directly from cows, without undergoing heat treatment.",
         "category": "Dairy",
         "vendor": "The Dairy Farm",
+        "vendorId": "dairy_farm_890",
         "imgPath": "https://static.toiimg.com/photo/69464837.cms",
         "price": 70.00,
         "unit": "liter",
@@ -191,7 +214,9 @@ class ProductModel {
         "source": "From chickens raised with access to outdoor areas.",
         "category": "Poultry",
         "vendor": "The Poultry Farm",
-        "imgPath": "https://www.lovefoodhatewaste.com/sites/default/files/styles/16_9_two_column/public/2022-08/Poultry-sh583587001.jpg.webp?itok=Keh02AO1",
+        "vendorId": "poultry_farm_345",
+        "imgPath":
+            "https://www.lovefoodhatewaste.com/sites/default/files/styles/16_9_two_column/public/2022-08/Poultry-sh583587001.jpg.webp?itok=Keh02AO1",
         "price": 250.00,
         "unit": "kg",
         "id": 13
@@ -203,7 +228,9 @@ class ProductModel {
         "source": "Laid by hens that have ample access to outdoor pasture.",
         "category": "Eggs",
         "vendor": "The Egg Farm",
-        "imgPath": "https://cimg0.ibsrv.net/cimg/www.fitday.com/693x350_85-1/728/Eggs_000001615195_Small-108728.jpg",
+        "vendorId": "egg_farm_112",
+        "imgPath":
+            "https://cimg0.ibsrv.net/cimg/www.fitday.com/693x350_85-1/728/Eggs_000001615195_Small-108728.jpg",
         "price": 80.00,
         "unit": "dozen",
         "id": 14
@@ -216,7 +243,9 @@ class ProductModel {
             "A traditional mix of tender, young salad greens, grown using organic farming practices.",
         "category": "Organic Packs",
         "vendor": "The Organic Farm",
-        "imgPath": "https://www.producemarketguide.com/media/user_RZKVrm5KkV/456/salad-european_variety-page.png",
+        "vendorId": "organic_farm_445",
+        "imgPath":
+            "https://www.producemarketguide.com/media/user_RZKVrm5KkV/456/salad-european_variety-page.png",
         "price": 180.00,
         "unit": "pack",
         "id": 15
@@ -229,7 +258,9 @@ class ProductModel {
             "A premium pineapple variety known for its sweetness and aroma, originating from specific tropical regions.",
         "category": "Fruits",
         "vendor": "The Pineapple Plantation",
-        "imgPath": "https://www.healthxchange.sg/sites/hexassets/Assets/food-nutrition/pineapple-health-benefits-and-ways-to-enjoy.jpg",
+        "vendorId": "pine_plant_778",
+        "imgPath":
+            "https://www.healthxchange.sg/sites/hexassets/Assets/food-nutrition/pineapple-health-benefits-and-ways-to-enjoy.jpg",
         "price": 70.00,
         "unit": "piece",
         "id": 16
@@ -242,7 +273,9 @@ class ProductModel {
             "Sweet pepper varieties cultivated using organic farming methods.",
         "category": "Vegetables",
         "vendor": "The Pepper Farm",
-        "imgPath": "https://shopanddonate.org/wp-content/uploads/2022/08/mixed-peppers-box.jpg",
+        "vendorId": "pepper_farm_009",
+        "imgPath":
+            "https://shopanddonate.org/wp-content/uploads/2022/08/mixed-peppers-box.jpg",
         "price": 110.00,
         "unit": "kg",
         "id": 17
@@ -255,7 +288,9 @@ class ProductModel {
             "A cultivar of basil originating from the Liguria region of Italy.",
         "category": "Herbs",
         "vendor": "The Herb Garden",
-        "imgPath": "https://4rfreshandfrozen.com/cdn/shop/products/BasilLeaves.jpg?v=1617442929",
+        "vendorId": "herb_garden_234",
+        "imgPath":
+            "https://4rfreshandfrozen.com/cdn/shop/products/BasilLeaves.jpg?v=1617442929",
         "price": 200.00,
         "unit": "kg",
         "id": 18
@@ -268,7 +303,9 @@ class ProductModel {
             "Ground from the entire kernel of wheat, retaining all its natural components.",
         "category": "Grains",
         "vendor": "The Grain Mill",
-        "imgPath": "https://ohoui.com/cdn/shop/articles/Post_Facebook_Mion_9.png?v=1673881584",
+        "vendorId": "grain_mill_567",
+        "imgPath":
+            "https://ohoui.com/cdn/shop/articles/Post_Facebook_Mion_9.png?v=1673881584",
         "price": 45.00,
         "unit": "kg",
         "id": 19
@@ -281,7 +318,9 @@ class ProductModel {
             "Cheddar cheese that has been matured for several months or years to enhance its flavor.",
         "category": "Dairy",
         "vendor": "The Dairy Farm",
-        "imgPath": "https://cheesemaking.com/cdn/shop/files/cheddar-cheese-making-recipe.jpg?v=1743632339",
+        "vendorId": "dairy_farm_890",
+        "imgPath":
+            "https://cheesemaking.com/cdn/shop/files/cheddar-cheese-making-recipe.jpg?v=1743632339",
         "price": 350.00,
         "unit": "kg",
         "id": 20
@@ -294,7 +333,9 @@ class ProductModel {
             "Minced meat from pigs, with a significant portion of the fat removed.",
         "category": "Meat",
         "vendor": "The Meat Farm",
-        "imgPath": "https://goodfinds.ph/wp-content/uploads/2022/08/Ground-Pork-Lean.jpg",
+        "vendorId": "meat_farm_012",
+        "imgPath":
+            "https://goodfinds.ph/wp-content/uploads/2022/08/Ground-Pork-Lean.jpg",
         "price": 280.00,
         "unit": "kg",
         "id": 21
@@ -306,7 +347,9 @@ class ProductModel {
         "source": "Duck eggs that have been fertilized by a male duck.",
         "category": "Eggs",
         "vendor": "The Poultry Farm",
-        "imgPath": "https://yongsooneggs.com.my/wp-content/uploads/2018/08/blown-duck-eggs-1_02.jpg",
+        "vendorId": "poultry_farm_345",
+        "imgPath":
+            "https://yongsooneggs.com.my/wp-content/uploads/2018/08/blown-duck-eggs-1_02.jpg",
         "price": 120.00,
         "unit": "dozen",
         "id": 22
@@ -320,6 +363,7 @@ class ProductModel {
           source: item['source'],
           category: item['category'],
           vendor: item['vendor'],
+          vendorId: item['vendorId'],
           imgPath: item['imgPath'],
           price: item['price'],
           unit: item['unit'],
@@ -331,6 +375,7 @@ class ProductModel {
           source: product.source,
           category: product.category,
           vendor: product.vendor,
+          vendorId: product.vendorId,
           imgPath: product.imgPath,
           price: product.price,
           unit: product.unit,

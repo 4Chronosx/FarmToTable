@@ -37,18 +37,22 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text('Marketplace'),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         child: Container(
           width: screenWidth,
-          color: Colors.white,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                height: 100,
+                height: 50,
               ),
-              ReusableSearchBar(width: screenWidth * 0.8),
+              ProductSearchBar(screenWidth: screenWidth, products: products),
               SizedBox(
                 height: 50,
               ),
@@ -180,6 +184,8 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     );
   }
 
+  
+
   Container recommendationsBuilder() {
     return Container(
       height: 225,
@@ -197,7 +203,18 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                     color:
                         index % 2 == 0 ? Color(0xFF77905B) : Color(0xFFFAE526),
                     shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(10)),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color.fromRGBO(99, 99, 99, 0.2),
+                        blurRadius: 8,
+                        spreadRadius: 0,
+                        offset: Offset(
+                          0,
+                          2,
+                        ),
+                      ),
+                    ]),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -209,9 +226,9 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10)),
                       child: Padding(
-                        padding: EdgeInsets.all(2.0),
+                        padding: EdgeInsets.all(2),
                         child: CachedNetworkImage(
-                          imageUrl: '',
+                          imageUrl: products[index].imgPath,
                           placeholder: (context, url) =>
                               CircularProgressIndicator(),
                           errorWidget: (context, url, error) =>
@@ -273,7 +290,18 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                   width: 100,
                   decoration: BoxDecoration(
                       color: categories[index].boxColor,
-                      borderRadius: BorderRadius.circular(16)),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color.fromRGBO(99, 99, 99, 0.2),
+                          blurRadius: 8,
+                          spreadRadius: 0,
+                          offset: Offset(
+                            0,
+                            2,
+                          ),
+                        ),
+                      ]),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

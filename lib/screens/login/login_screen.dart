@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 50,
                             child: ElevatedButton(
                               onPressed: () {
-                                context.go('/mainhomescreen');
+                                context.push('/mainhomescreen');
                               },
                               style: ButtonStyle(
                                   backgroundColor: WidgetStateColor.fromMap({
