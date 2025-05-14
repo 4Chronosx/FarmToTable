@@ -1,20 +1,22 @@
 import 'package:farm2you/commons.dart';
+import 'package:farm2you/models/product_model.dart';
+import 'package:farm2you/widgets/product_widget.dart';
 
-class ReusableSearchBar extends StatelessWidget {
-  final double width;
-  final void Function(String)? onSelected;
+class ProductSearchBar extends StatelessWidget {
+  final double screenWidth;
+  final List<ProductModel> products;
 
-  const ReusableSearchBar({
+  const ProductSearchBar({
     Key? key,
-    required this.width,
-    this.onSelected,
+    required this.screenWidth,
+    required this.products,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 50,
-      width: width,
+      width: screenWidth * 0.9,
       child: SearchAnchor(
         viewBackgroundColor: Colors.white,
         builder: (BuildContext context, SearchController controller) {
@@ -28,33 +30,42 @@ class ReusableSearchBar extends StatelessWidget {
             onTap: controller.openView,
             onChanged: (_) => controller.openView(),
             leading: const Icon(Icons.search),
-            trailing: <Widget>[
-              Tooltip(
-                message: 'Filter',
-                child: IconButton(
-                  onPressed: () {
-                    // You could add filter functionality here
-                  },
-                  icon: const Icon(FontAwesomeIcons.filter),
-                ),
-              )
-            ],
           );
         },
         suggestionsBuilder: (BuildContext context, SearchController controller) {
-          return List<ListTile>.generate(5, (int index) {
-            final String item = 'item $index';
-            return ListTile(
-              tileColor: Colors.white,
-              title: Text(item),
-              onTap: () {
-                controller.closeView(item);
-                if (onSelected != null) {
-                  onSelected!(item);
-                }
-              },
-            );
-          });
+          final String input = controller.value.text;
+          final filteredProducts = products
+              .where((item) =>
+                  item.name.toLowerCase().contains(input.toLowerCase()))
+              .toList();
+
+          return [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                '${filteredProducts.length} product(s)',
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Wrap(
+                  spacing: 20,
+                  runSpacing: 20,
+                  children: filteredProducts.map((item) {
+                    return GestureDetector(
+                      onTap: item.onTap,
+                      child: productWidget(screenWidth, item),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ];
         },
       ),
     );

@@ -1,9 +1,9 @@
-
 import 'package:farm2you/commons.dart';
 import 'package:farm2you/screens/user_side/cart/cart_screen.dart';
 import 'package:farm2you/screens/user_side/explore/explore_screen.dart';
 import 'package:farm2you/screens/user_side/marketplace/marketplace_screen.dart';
 import 'package:farm2you/screens/user_side/orders/orders_screen.dart';
+import 'package:farm2you/utils/navigation_provider.dart';
 
 class MainHomeScreen extends StatefulWidget {
   const MainHomeScreen({super.key});
@@ -22,17 +22,12 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
     CartScreen()
   ];
 
-  void onItemTapped(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final navProvider = Provider.of<NavigationProvider>(context);
 
-      body: widgetOptions.elementAt(selectedIndex),
+    return Scaffold(
+      body: widgetOptions.elementAt(navProvider.currentIndexVar),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
         showSelectedLabels: true,
@@ -41,15 +36,22 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
         selectedItemColor: Colors.amber,
         unselectedItemColor: Colors.blueGrey,
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(FontAwesomeIcons.locationDot), label: 'Explore'),
-          BottomNavigationBarItem(icon: Icon(FontAwesomeIcons.store), label: 'Marketplace'),
-          BottomNavigationBarItem(icon: Icon(FontAwesomeIcons.list), label: 'Orders'),
-          BottomNavigationBarItem(icon: Icon(FontAwesomeIcons.cartShopping), label: 'Cart'),
+          BottomNavigationBarItem(
+              icon: Icon(FontAwesomeIcons.locationDot), label: 'Explore'),
+          BottomNavigationBarItem(
+              icon: Icon(FontAwesomeIcons.store), label: 'Marketplace'),
+          BottomNavigationBarItem(
+              icon: Icon(FontAwesomeIcons.list), label: 'Orders'),
+          BottomNavigationBarItem(
+              icon: Icon(FontAwesomeIcons.cartShopping), label: 'Cart'),
         ],
-        currentIndex: selectedIndex,
-        onTap: onItemTapped,
-
-        ),
+        currentIndex: navProvider.currentIndex,
+        onTap: (int index) {
+          setState(() {
+            navProvider.changePage(index);
+          });
+        },
+      ),
     );
   }
 }
