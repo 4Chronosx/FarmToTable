@@ -125,7 +125,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 50,
                             child: ElevatedButton(
                               onPressed: () {
-                                context.push('/mainhomescreen');
+                                if (selectedIndex == 0) {
+                                  context.push('/mainhomescreen');
+                                } else {
+                                  context.push('/createprofilevendor');
+                                }
+                                
                               },
                               style: ButtonStyle(
                                   backgroundColor: WidgetStateColor.fromMap({

@@ -12,6 +12,7 @@ import 'package:farm2you/screens/user_side/sub_pages/category/category_page.dart
 import 'package:farm2you/screens/user_side/sub_pages/checkout/checkout_page.dart';
 import 'package:farm2you/screens/user_side/sub_pages/order_details/order_details.dart';
 import 'package:farm2you/screens/user_side/sub_pages/product_details/product_details_page.dart';
+import 'package:farm2you/screens/vendor_side/create_profile_screen.dart';
 import 'package:farm2you/utils/cart_provider.dart';
 import 'package:farm2you/utils/checkout_provider.dart';
 import 'package:farm2you/utils/navigation_provider.dart';
@@ -127,6 +128,12 @@ final GoRouter _router = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         final orderSet = state.extra as OrdersetModel;
         return OrderDetails(orderSet: orderSet);
+      },
+    ),
+    GoRoute(
+      path: '/createprofilevendor',
+      builder: (BuildContext context, GoRouterState state) {
+        return CreateProfileScreen();
       },
     ),
   ],
