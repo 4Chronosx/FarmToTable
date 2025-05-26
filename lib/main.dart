@@ -30,6 +30,7 @@ import 'package:farm2you/utils/checkout_provider.dart';
 import 'package:farm2you/utils/navigation_provider.dart';
 import 'package:farm2you/utils/orders_provider.dart';
 import 'package:farm2you/utils/inventory_provider.dart';
+import 'package:farm2you/utils/vendor_profile_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:farm2you/screens/splashscreen/splashscreen.dart';
 import 'package:farm2you/screens/splashscreen/splashscreen2.dart';
@@ -52,7 +53,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CheckoutProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
-        ChangeNotifierProvider(create: (_) => InventoryProvider())
+        ChangeNotifierProvider(create: (_) => InventoryProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider())
       ],
       child: MyApp(),
     ),

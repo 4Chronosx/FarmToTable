@@ -1,5 +1,6 @@
 // ignore_for_file: sized_box_for_whitespace
 
+import 'package:farm2you/utils/vendor_profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:farm2you/commons.dart';
@@ -12,131 +13,7 @@ class CreateProfileScreen extends StatefulWidget {
 }
 
 class _CreateProfileScreenState extends State<CreateProfileScreen> {
-  // Controllers
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _businessNameController = TextEditingController();
-  final TextEditingController _areaCodeController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _storeLogoController = TextEditingController();
-  final TextEditingController _storeCoverController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
-
-  // Selection states
-  bool isFruitSelected = false;
-  bool isVegetableSelected = false;
-  bool isHerbsSelected = false;
-  bool isDairySelected = false;
-  bool isMeatSelected = false;
-  bool isPoultrySelected = false;
-  bool isEggsSelected = false;
-  bool isGrainsSelected = false;
-  bool isOrganicPacksSelected = false;
   int selectedIndex = 0;
-
-  // Field configurations - reordered to match desired order
-  final _inputFields = <String, String>{
-    'fullName': 'Full name',
-    'businessName': 'Business Name',
-    'email': 'e-mail',
-    'storeLogo': 'Store Logo',
-    'storeCover': 'Store Cover',
-    'location': 'Location',
-  };
-
-  // Category configurations
-  final _categories = <String, String>{
-    'fruit': 'FRUITS',
-    'vegetable': 'VEGETABLES',
-    'herbs': 'HERBS',
-    'dairy': 'DAIRY',
-    'meat': 'MEAT',
-    'poultry': 'POULTRY',
-    'eggs': 'EGGS',
-    'grains': 'GRAINS',
-    'organicPacks': 'ORGANIC PACKS',
-  };
-
-  // Get controller by field key
-  TextEditingController _getController(String key) {
-    switch (key) {
-      case 'fullName':
-        return _fullNameController;
-      case 'businessName':
-        return _businessNameController;
-      case 'email':
-        return _emailController;
-      case 'storeLogo':
-        return _storeLogoController;
-      case 'storeCover':
-        return _storeCoverController;
-      case 'location':
-        return _locationController;
-      default:
-        return TextEditingController();
-    }
-  }
-
-  // Get selection state by category key
-  bool _getSelectionState(String key) {
-    switch (key) {
-      case 'fruit':
-        return isFruitSelected;
-      case 'vegetable':
-        return isVegetableSelected;
-      case 'herbs':
-        return isHerbsSelected;
-      case 'dairy':
-        return isDairySelected;
-      case 'meat':
-        return isMeatSelected;
-      case 'poultry':
-        return isPoultrySelected;
-      case 'eggs':
-        return isEggsSelected;
-      case 'grains':
-        return isGrainsSelected;
-      case 'organicPacks':
-        return isOrganicPacksSelected;
-      default:
-        return false;
-    }
-  }
-
-  // Toggle selection state by category key
-  void _toggleSelection(String key) {
-    setState(() {
-      switch (key) {
-        case 'fruit':
-          isFruitSelected = !isFruitSelected;
-          break;
-        case 'vegetable':
-          isVegetableSelected = !isVegetableSelected;
-          break;
-        case 'herbs':
-          isHerbsSelected = !isHerbsSelected;
-          break;
-        case 'dairy':
-          isDairySelected = !isDairySelected;
-          break;
-        case 'meat':
-          isMeatSelected = !isMeatSelected;
-          break;
-        case 'poultry':
-          isPoultrySelected = !isPoultrySelected;
-          break;
-        case 'eggs':
-          isEggsSelected = !isEggsSelected;
-          break;
-        case 'grains':
-          isGrainsSelected = !isGrainsSelected;
-          break;
-        case 'organicPacks':
-          isOrganicPacksSelected = !isOrganicPacksSelected;
-          break;
-      }
-    });
-  }
 
   // Common styles
   final _inputDecoration = BoxDecoration(
@@ -153,92 +30,87 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     height: 1.70,
   );
 
-  bool get isFormValid =>
-      _fullNameController.text.isNotEmpty &&
-      _businessNameController.text.isNotEmpty &&
-      _areaCodeController.text.isNotEmpty &&
-      _phoneNumberController.text.isNotEmpty &&
-      _emailController.text.isNotEmpty &&
-      _areaCodeController.text.length == 2 &&
-      _phoneNumberController.text.length == 9;
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FA),
-      body: Column(
-        children: [
-          _buildHeader(context),
+    return Consumer<ProfileProvider>(
+      builder: (context, profileProvider, child) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFF6F8FA),
+          body: Column(
+            children: [
+              _buildHeader(context),
 
-          // Scrollable content area
-          Expanded(
-            child: SingleChildScrollView(
-              physics:
-                  const AlwaysScrollableScrollPhysics(), // Ensure it's always scrollable
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Full name field
-                    _buildInputField(_fullNameController, 'Full name'),
-                    const SizedBox(height: 20),
+              // Scrollable content area
+              Expanded(
+                child: SingleChildScrollView(
+                  physics:
+                      const AlwaysScrollableScrollPhysics(), // Ensure it's always scrollable
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Full name field
+                        _buildInputField(profileProvider.fullNameController,
+                            'Full name', profileProvider),
+                        const SizedBox(height: 20),
 
-                    // Business name field
-                    _buildInputField(_businessNameController, 'Business Name'),
-                    const SizedBox(height: 20),
+                        // Business name field
+                        _buildInputField(profileProvider.businessNameController,
+                            'Business Name', profileProvider),
+                        const SizedBox(height: 20),
 
-                    // Email field
-                    _buildInputField(_emailController, 'e-mail'),
-                    const SizedBox(height: 20),
+                        // Email field
+                        _buildInputField(profileProvider.emailController,
+                            'e-mail', profileProvider),
+                        const SizedBox(height: 20),
 
-                    // Phone fields - now placed after email
-                    _buildPhoneFields(),
-                    const SizedBox(height: 20),
+                        // Phone fields - now placed after email
+                        _buildPhoneFields(profileProvider),
+                        const SizedBox(height: 20),
 
-                    // Store Logo field with upload button
-                    _buildInputFieldWithButton(
-                        _storeLogoController, 'Store Logo'),
-                    const SizedBox(height: 20),
+                        // Store Logo field with upload button
+                        _buildInputFieldWithButton(
+                            profileProvider.storeLogoController,
+                            'Store Logo',
+                            profileProvider),
+                        const SizedBox(height: 20),
 
-                    // Store Cover field with upload button
-                    _buildInputFieldWithButton(
-                        _storeCoverController, 'Store Cover Page'),
-                    const SizedBox(height: 20),
+                        // Location field with location button
+                        _buildLocationField(profileProvider),
+                        const SizedBox(height: 20),
 
-                    // Location field with location button
-                    _buildLocationField(),
-                    const SizedBox(height: 20),
-
-                    // Categories section
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Categories',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
-                          height: 1.71,
-                          letterSpacing: 0.50,
+                        // Categories section
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Categories',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                              height: 1.71,
+                              letterSpacing: 0.50,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+                        const SizedBox(height: 20),
 
-                    // Category selection grid
-                    _buildCategoriesGrid(),
-                    const SizedBox(height: 40),
-                  ],
+                        // Category selection grid
+                        _buildCategoriesGrid(profileProvider),
+                        const SizedBox(height: 40),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
 
-          _buildRegisterButton(context),
-        ],
-      ),
+              _buildRegisterButton(context, profileProvider),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -292,14 +164,15 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildInputField(TextEditingController controller, String hint) {
+  Widget _buildInputField(TextEditingController controller, String hint,
+      ProfileProvider profileProvider) {
     return Container(
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: _inputDecoration,
       child: TextField(
         controller: controller,
-        onChanged: (_) => setState(() {}),
+        onChanged: (_) => profileProvider.updateValidation(),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: _hintStyle,
@@ -309,8 +182,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildInputFieldWithButton(
-      TextEditingController controller, String hint) {
+  Widget _buildInputFieldWithButton(TextEditingController controller,
+      String hint, ProfileProvider profileProvider) {
     return Container(
       height: 48,
       decoration: _inputDecoration,
@@ -321,7 +194,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
               padding: const EdgeInsets.only(left: 16),
               child: TextField(
                 controller: controller,
-                onChanged: (_) => setState(() {}),
+                onChanged: (_) => profileProvider.updateValidation(),
                 decoration: InputDecoration(
                   hintText: hint,
                   hintStyle: _hintStyle,
@@ -335,9 +208,13 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ElevatedButton(
-              onPressed: () {
-                // Handle upload action
-              },
+              onPressed: profileProvider.isUploading
+                  ? null
+                  : () async {
+                      // Handle upload action
+                      String type = hint.contains('Logo') ? 'logo' : 'cover';
+                      await profileProvider.uploadFile('', type);
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFA9BC8E),
                 foregroundColor: Colors.white,
@@ -354,7 +231,16 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              child: const Text('UPLOAD'),
+              child: profileProvider.isUploading
+                  ? const SizedBox(
+                      width: 12,
+                      height: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text('UPLOAD'),
             ),
           ),
         ],
@@ -362,7 +248,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildLocationField() {
+  Widget _buildLocationField(ProfileProvider profileProvider) {
     return Container(
       height: 48,
       decoration: _inputDecoration,
@@ -373,8 +259,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             child: Padding(
               padding: const EdgeInsets.only(left: 16),
               child: TextField(
-                controller: _locationController,
-                onChanged: (_) => setState(() {}),
+                controller: profileProvider.locationController,
+                onChanged: (_) => profileProvider.updateValidation(),
                 decoration: InputDecoration(
                   hintText: 'Location',
                   hintStyle: _hintStyle,
@@ -402,7 +288,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildPhoneFields() {
+  Widget _buildPhoneFields(ProfileProvider profileProvider) {
     return Row(
       children: [
         Container(
@@ -411,7 +297,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: _inputDecoration,
           child: TextField(
-            controller: _areaCodeController,
+            controller: profileProvider.areaCodeController,
             keyboardType: TextInputType.number,
             inputFormatters: [
               LengthLimitingTextInputFormatter(2),
@@ -419,7 +305,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             ],
             onChanged: (value) {
               if (value.isNotEmpty && !value.startsWith('+')) {
-                setState(() {});
+                profileProvider.updateValidation();
               }
             },
             decoration: InputDecoration(
@@ -437,13 +323,13 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: _inputDecoration,
             child: TextField(
-              controller: _phoneNumberController,
+              controller: profileProvider.phoneNumberController,
               keyboardType: TextInputType.number,
               inputFormatters: [
-                LengthLimitingTextInputFormatter(9),
+                LengthLimitingTextInputFormatter(10),
                 FilteringTextInputFormatter.digitsOnly,
               ],
-              onChanged: (_) => setState(() {}),
+              onChanged: (_) => profileProvider.updateValidation(),
               decoration: InputDecoration(
                 hintText: 'Phone Number',
                 hintStyle: _hintStyle,
@@ -456,8 +342,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildCategoriesGrid() {
-    final items = _categories.entries.toList();
+  Widget _buildCategoriesGrid(ProfileProvider profileProvider) {
+    final items = profileProvider.categories.entries.toList();
 
     return Column(
       children: [
@@ -466,9 +352,11 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildSelectionButton(items[i].key, items[i].value),
+                _buildSelectionButton(
+                    items[i].key, items[i].value, profileProvider),
                 if (i + 1 < items.length)
-                  _buildSelectionButton(items[i + 1].key, items[i + 1].value)
+                  _buildSelectionButton(
+                      items[i + 1].key, items[i + 1].value, profileProvider)
                 else
                   Container(width: 179),
               ],
@@ -479,11 +367,12 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildSelectionButton(String key, String text) {
-    final isSelected = _getSelectionState(key);
+  Widget _buildSelectionButton(
+      String key, String text, ProfileProvider profileProvider) {
+    final isSelected = profileProvider.getSelectionState(key);
 
     return TextButton(
-      onPressed: () => _toggleSelection(key),
+      onPressed: () => profileProvider.toggleSelection(key),
       style: TextButton.styleFrom(
         padding: EdgeInsets.zero,
         minimumSize: const Size(179, 48),
@@ -508,19 +397,24 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildRegisterButton(BuildContext context) {
+  Widget _buildRegisterButton(
+      BuildContext context, ProfileProvider profileProvider) {
     return SizedBox(
       width: double.infinity,
       height: 90,
       child: ElevatedButton(
-        onPressed: isFormValid
-            ? () {
-                context.push('/registeredsplash');
+        onPressed: profileProvider.isFormValid && !profileProvider.isLoading
+            ? () async {
+                bool success = await profileProvider.saveProfile();
+                if (success) {
+                  context.push('/registeredsplash');
+                }
               }
             : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor:
-              isFormValid ? const Color(0xFFF0D003) : const Color(0xFFFFEE84),
+          backgroundColor: profileProvider.isFormValid
+              ? const Color(0xFFF0D003)
+              : const Color(0xFFFFEE84),
           foregroundColor: Colors.white,
           disabledBackgroundColor: const Color(0xFFFFEE84),
           disabledForegroundColor: Colors.white,
@@ -530,17 +424,21 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           ),
           padding: EdgeInsets.zero,
         ),
-        child: const Text(
-          'Register as Farmer',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700,
-            height: 1.70,
-            letterSpacing: 0.01,
-          ),
-        ),
+        child: profileProvider.isLoading
+            ? const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              )
+            : const Text(
+                'Register as Farmer',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w700,
+                  height: 1.70,
+                  letterSpacing: 0.01,
+                ),
+              ),
       ),
     );
   }
