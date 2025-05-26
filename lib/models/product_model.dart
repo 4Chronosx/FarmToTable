@@ -1,5 +1,5 @@
 import 'package:farm2you/commons.dart';
-import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:go_router/go_router.dart';
 
 class ProductModel {
   String name;
@@ -11,6 +11,7 @@ class ProductModel {
   String imgPath;
   double price;
   String unit;
+  int? stock;
   int id;
   void Function()? onTap;
 
@@ -24,8 +25,43 @@ class ProductModel {
       required this.imgPath,
       required this.price,
       required this.unit,
+      required this.stock,
       required this.id,
       this.onTap});
+
+  // Convert ProductModel to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'description': description,
+      'source': source,
+      'category': category,
+      'vendor': vendor,
+      'vendorId': vendorId,
+      'imgPath': imgPath,
+      'price': price,
+      'unit': unit,
+      'stock': stock,
+      'id': id,
+    };
+  }
+
+  // Create ProductModel from JSON
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
+      name: json['name'] as String,
+      description: json['description'] as String,
+      source: json['source'] as String,
+      category: json['category'] as String,
+      vendor: json['vendor'] as String,
+      vendorId: json['vendorId'] as String,
+      imgPath: json['imgPath'] as String,
+      price: json['price'] as double,
+      unit: json['unit'] as String,
+      stock: json['stock'] as int,
+      id: json['id'] as int,
+    );
+  }
 
   static List<ProductModel> getProducts(BuildContext context) {
     List<Map<String, dynamic>> items = [
@@ -367,6 +403,7 @@ class ProductModel {
           imgPath: item['imgPath'],
           price: item['price'],
           unit: item['unit'],
+          stock: item['stock'],
           id: item['id']);
 
       return ProductModel(
@@ -379,6 +416,7 @@ class ProductModel {
           imgPath: product.imgPath,
           price: product.price,
           unit: product.unit,
+          stock: product.stock,
           id: product.id,
           onTap: () {
             context.push('/product_details', extra: product);

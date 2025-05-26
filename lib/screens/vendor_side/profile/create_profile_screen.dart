@@ -20,7 +20,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _storeLogoController = TextEditingController();
   final TextEditingController _storeCoverController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
   // Selection states
   bool isFruitSelected = false;
@@ -41,7 +41,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     'email': 'e-mail',
     'storeLogo': 'Store Logo',
     'storeCover': 'Store Cover',
-    'address': 'Location',
+    'location': 'Location',
   };
 
   // Category configurations
@@ -70,8 +70,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
         return _storeLogoController;
       case 'storeCover':
         return _storeCoverController;
-      case 'address':
-        return _addressController;
+      case 'location':
+        return _locationController;
       default:
         return TextEditingController();
     }
@@ -206,15 +206,15 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                         _storeCoverController, 'Store Cover Page'),
                     const SizedBox(height: 20),
 
-                    // Address field with location button
-                    _buildAddressField(),
+                    // Location field with location button
+                    _buildLocationField(),
                     const SizedBox(height: 20),
 
-                    // Type of Goods section
+                    // Categories section
                     const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Type of Goods',
+                        'Categories',
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 14,
@@ -362,7 +362,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildAddressField() {
+  Widget _buildLocationField() {
     return Container(
       height: 48,
       decoration: _inputDecoration,
@@ -373,7 +373,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             child: Padding(
               padding: const EdgeInsets.only(left: 16),
               child: TextField(
-                controller: _addressController,
+                controller: _locationController,
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                   hintText: 'Location',
@@ -387,7 +387,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           // Location button
           GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/store_location');
+              context.push('/storelocation');
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -515,7 +515,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       child: ElevatedButton(
         onPressed: isFormValid
             ? () {
-                Navigator.pushReplacementNamed(context, '/registeredsplash');
+                context.push('/registeredsplash');
               }
             : null,
         style: ElevatedButton.styleFrom(

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:farm2you/widgets/vendor_navigationbar.dart';
 
-class VendorOrdersScreen extends StatelessWidget {
+class VendorProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Remove the default AppBar since we're using a custom header
       body: Column(
         children: [
           _buildHeader(context),
@@ -13,17 +12,16 @@ class VendorOrdersScreen extends StatelessWidget {
             child: Container(
               // Your existing dashboard content goes here
               child: Center(
-                child: Text('Orders Content'),
+                child: Text('Profile Content'),
               ),
             ),
           ),
         ],
       ),
-      bottomNavigationBar: VendorNavigationBar(selectedIndex: 1),
+      bottomNavigationBar: VendorNavigationBar(selectedIndex: 3),
     );
   }
 
-  // Move the method inside the class or make it static
   Widget _buildHeader(BuildContext context) {
     return Column(
       children: [
@@ -44,7 +42,7 @@ class VendorOrdersScreen extends StatelessWidget {
             padding: EdgeInsets.only(top: 70, left: 24, right: 24, bottom: 20),
             child: Center(
               child: Text(
-                'Orders',
+                'Profile',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Color(0xFF1D1B20),

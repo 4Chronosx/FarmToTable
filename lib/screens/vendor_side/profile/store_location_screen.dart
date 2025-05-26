@@ -88,7 +88,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
         children: [
           GestureDetector(
             onTap: () {
-              context.push('/create_profile');
+              context.push('/createprofilevendor');
             },
             child: Container(
               width: 32,

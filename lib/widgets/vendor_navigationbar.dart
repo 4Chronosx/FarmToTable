@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class VendorNavigationBar extends StatelessWidget {
   final int selectedIndex;
@@ -13,12 +15,15 @@ class VendorNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
+      width: MediaQuery.of(context).size.width,
       height: 80,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.only(bottom: 0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(25),
+          topRight: Radius.circular(25),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -39,14 +44,14 @@ class VendorNavigationBar extends StatelessWidget {
           ),
           _buildNavItem(
             index: 1,
-            icon: const Icon(Icons.shopping_cart_outlined, size: 24),
+            icon: const Icon(FontAwesomeIcons.cartShopping, size: 24),
             label: 'Orders',
             isSelected: selectedIndex == 1,
             context: context,
           ),
           _buildNavItem(
             index: 2,
-            icon: const Icon(Icons.inventory_2_outlined, size: 24),
+            icon: const Icon(FontAwesomeIcons.list, size: 24),
             label: 'Inventory',
             isSelected: selectedIndex == 2,
             context: context,
@@ -70,19 +75,19 @@ class VendorNavigationBar extends StatelessWidget {
         routeName = '/dashboard';
         break;
       case 1:
-        routeName = '/orders';
+        routeName = '/vendororders';
         break;
       case 2:
         routeName = '/inventory';
         break;
       case 3:
-        routeName = '/vendor-profile';
+        routeName = '/vendorprofile';
         break;
       default:
         routeName = '/dashboard';
     }
 
-    Navigator.of(context).pushNamed(routeName);
+    context.push(routeName);
   }
 
   Widget _buildNavItem({
@@ -107,6 +112,7 @@ class VendorNavigationBar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Icon container with selection indicator
             Container(
               width: 40,
               height: 32,
