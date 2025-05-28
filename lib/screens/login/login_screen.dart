@@ -106,7 +106,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               screenWidth,
                               screenHeight,
                               _emailController,
-                              Icon(FontAwesomeIcons.envelope, size: 20), 'Email'),
+                              Icon(FontAwesomeIcons.envelope, size: 20),
+                              'Email'),
                           SizedBox(
                             width: screenWidth,
                             height: 20,
@@ -115,7 +116,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               screenWidth,
                               screenHeight,
                               _passwordController,
-                              Icon(FontAwesomeIcons.lock, size: 20), 'Password'),
+                              Icon(FontAwesomeIcons.lock, size: 20),
+                              'Password'),
                           SizedBox(
                             width: screenWidth,
                             height: 40,
@@ -128,9 +130,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (selectedIndex == 0) {
                                   context.push('/mainhomescreen');
                                 } else {
-                                  context.push('/createprofilevendor');
+                                  context.push('/dashboard');
                                 }
-                                
                               },
                               style: ButtonStyle(
                                   backgroundColor: WidgetStateColor.fromMap({
@@ -158,14 +159,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           Padding(
                             padding: EdgeInsets.all(15),
-                            child: Text(
-                              'Forgot you password?',
-                              style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500)
-                            ),
+                            child: Text('Forgot your password?',
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500)),
                           )
                         ],
                       )),
@@ -263,7 +262,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     color: Colors.grey),
                               ),
                               GestureDetector(
-                                onTap: (){
+                                onTap: () {
                                   context.go('/signup');
                                 },
                                 child: Text(

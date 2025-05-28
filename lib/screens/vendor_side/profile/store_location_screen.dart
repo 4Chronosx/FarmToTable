@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class StoreLocationScreen extends StatefulWidget {
   const StoreLocationScreen({super.key});
@@ -18,6 +20,9 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
   final TextEditingController _provinceController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
+
+  // Map controller
+  final MapController _mapController = MapController();
 
   // Common styles
   final _inputDecoration = BoxDecoration(
@@ -106,52 +111,19 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 250,
-      color: const Color(0xFFD3D9E0),
-      child: Stack(
-        alignment: Alignment.center,
+      child: FlutterMap(
+        mapController: _mapController,
+        options: MapOptions(
+            initialCenter: LatLng(10.322467560222893, 123.89885172891246),
+            initialZoom: 18,
+            minZoom: 0,
+            maxZoom: 100,
+            cameraConstraint: CameraConstraint.contain(
+                bounds: LatLngBounds(
+                    const LatLng(-85.0, -180.0), const LatLng(85.0, 180.0)))),
         children: [
-          // Location marker
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Location bubble
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF32343E),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: const Text(
-                  'Move to edit location',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Location pin
-              Container(
-                width: 30,
-                height: 30,
-                decoration: const BoxDecoration(
-                  color: Color(0x33F6916C),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Container(
-                    width: 20,
-                    height: 20,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFB6D3A),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           ),
         ],
       ),

@@ -37,26 +37,43 @@ class RegisteredScreen extends StatelessWidget {
             // "Start Selling" button
             Padding(
               padding: const EdgeInsets.all(20),
-              child: ElevatedButton(
-                onPressed: () {
-                  context.push('/dashboard');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF0D003),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.push('/login');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF0D003),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: const Text(
+                        'Start Selling',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                child: const Text(
-                  'Start Selling',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(height: 8),
+                  const Text(
+                    'You will be asked to log in again',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontFamily: 'Poppins',
+                      color: Colors.black,
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ],

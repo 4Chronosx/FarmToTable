@@ -1,6 +1,6 @@
 // ignore_for_file: sized_box_for_whitespace
 
-import 'package:farm2you/utils/vendor_profile_provider.dart';
+import 'package:farm2you/utils/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:farm2you/commons.dart';

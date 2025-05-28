@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:farm2you/widgets/vendor_navigationbar.dart';
-import 'package:farm2you/utils/vendor_profile_provider.dart';
+import 'package:farm2you/utils/profile_provider.dart';
+import 'package:farm2you/utils/vendor_provider.dart';
 
 class VendorProfileScreen extends StatelessWidget {
+  const VendorProfileScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,14 +15,15 @@ class VendorProfileScreen extends StatelessWidget {
         children: [
           _buildHeader(context),
           Expanded(
-            child: Consumer<ProfileProvider>(
-              builder: (context, profileProvider, child) {
+            child: Consumer2<ProfileProvider, VendorProvider>(
+              builder: (context, profileProvider, vendorProvider, child) {
                 return SingleChildScrollView(
                   child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(32, 20, 32, 0),
-                        child: _buildProfileCard(profileProvider),
+                        child:
+                            _buildProfileCard(profileProvider, vendorProvider),
                       ),
                       _buildDividerLine(),
                       Padding(
@@ -75,7 +79,8 @@ class VendorProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileCard(ProfileProvider profileProvider) {
+  Widget _buildProfileCard(
+      ProfileProvider profileProvider, VendorProvider vendorProvider) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -117,6 +122,24 @@ class VendorProfileScreen extends StatelessWidget {
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w700,
               height: 1.27,
+            ),
+          ),
+
+          // Add spacing between Business Name and Vendor ID
+          const SizedBox(height: 8),
+
+          // Vendor ID
+          Text(
+            vendorProvider.currentVendorId.isNotEmpty
+                ? 'Vendor ID: ${vendorProvider.currentVendorId}'
+                : 'Vendor ID: Not Available',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color(0xFF647A4C),
+              fontSize: 14,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.5,
             ),
           ),
         ],
