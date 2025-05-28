@@ -55,8 +55,12 @@ void main() async {
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
         ChangeNotifierProvider(create: (_) => InventoryProvider()),
-        ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => VendorProvider()),
+        ChangeNotifierProxyProvider<VendorProvider, ProfileProvider>(
+          create: (context) => ProfileProvider(context.read<VendorProvider>()),
+          update: (context, vendorProvider, previous) =>
+              previous ?? ProfileProvider(vendorProvider),
+        ),
       ],
       child: MyApp(),
     ),

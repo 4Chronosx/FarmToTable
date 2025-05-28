@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'vendor_provider.dart';
 
 class ProfileProvider extends ChangeNotifier {
+  // Add VendorProvider reference
+  final VendorProvider _vendorProvider;
+
+  ProfileProvider(this._vendorProvider);
+
   // Controllers
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _businessNameController = TextEditingController();
@@ -296,23 +302,24 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
-  // Save profile method (placeholder - implement based on your API)
+  // Save profile method
   Future<bool> saveProfile() async {
     if (!isFormValid) return false;
 
     setLoading(true);
     try {
-      // Implement your save profile API call here
       final profileData = getProfileData();
 
-      // Simulate API call
+      // Create vendor profile with generated ID
+      _vendorProvider.setVendorFromProfile(profileData);
+
+      // Simulate API call for profile save
       await Future.delayed(const Duration(seconds: 2));
 
-      // Handle success
       debugPrint('Profile saved: $profileData');
+      debugPrint('Vendor ID generated: ${_vendorProvider.currentVendorId}');
       return true;
     } catch (e) {
-      // Handle save error
       debugPrint('Save error: $e');
       return false;
     } finally {

@@ -113,15 +113,16 @@ class VendorProvider extends ChangeNotifier {
     if (_existingVendors.containsKey(vendorId)) {
       final vendorData = _existingVendors[vendorId]!;
       _currentVendorId = vendorId;
-      _currentVendorName = vendorData['name'];
+      _currentVendorName = vendorData['name'] ?? vendorData['businessName'];
       _currentVendorEmail = vendorData['email'] ?? '';
       _currentVendorPhone = vendorData['phone'] ?? '';
       _currentVendorLocation = vendorData['location'] ?? '';
-      _currentVendorCategories = [vendorData['category']];
+      _currentVendorCategories = List<String>.from(
+          vendorData['categories'] ?? [vendorData['category'] ?? []]);
       _isLoggedIn = true;
 
       debugPrint(
-          'Existing vendor logged in: $vendorId - ${vendorData['name']}');
+          'Existing vendor logged in: $vendorId - ${vendorData['name'] ?? vendorData['businessName']}');
       notifyListeners();
     } else {
       debugPrint('Vendor ID $vendorId not found in existing vendors');
@@ -205,6 +206,17 @@ class VendorProvider extends ChangeNotifier {
     // Generate new vendorId for new vendor
     String vendorId = _generateVendorId(businessName);
 
+    // Store the new vendor in _existingVendors
+    _existingVendors[vendorId] = {
+      'businessName': businessName,
+      'name': businessName,
+      'email': profileData['email'] ?? '',
+      'phone': profileData['phone'] ?? '',
+      'location': profileData['location'] ?? '',
+      'categories': profileData['categories'] ?? [],
+    };
+
+    // Set current vendor data
     _currentVendorId = vendorId;
     _currentVendorName = businessName;
     _currentVendorEmail = profileData['email'] ?? '';
@@ -350,5 +362,24 @@ class VendorProvider extends ChangeNotifier {
     debugPrint('Location: $_currentVendorLocation');
     debugPrint('Categories: $_currentVendorCategories');
     debugPrint('==================');
+  }
+
+  // Find vendor by email
+  Map<String, dynamic>? findVendorByEmail(String email) {
+    String? foundVendorId;
+
+    // Check all vendors (both existing and newly registered)
+    _existingVendors.forEach((vendorId, vendorData) {
+      String vendorEmail = vendorData['email']?.toString().toLowerCase() ?? '';
+      if (vendorEmail == email.toLowerCase()) {
+        foundVendorId = vendorId;
+      }
+    });
+
+    if (foundVendorId != null) {
+      return {'vendorId': foundVendorId!, ..._existingVendors[foundVendorId!]!};
+    }
+
+    return null;
   }
 }
