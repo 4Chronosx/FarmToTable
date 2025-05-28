@@ -83,15 +83,6 @@ class _VendorOrdersScreenState extends State<VendorOrdersScreen>
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
-                            _buildStatCard(
-                              'Total Orders',
-                              ordersProvider
-                                  .getTotalVendorOrders(widget.vendorId)
-                                  .toString(),
-                              Colors.blue,
-                              FontAwesomeIcons.clipboardList,
-                              screenWidth,
-                            ),
                             SizedBox(width: 12),
                             _buildStatCard(
                               'Pending',
@@ -102,7 +93,7 @@ class _VendorOrdersScreenState extends State<VendorOrdersScreen>
                               FontAwesomeIcons.clock,
                               screenWidth,
                             ),
-                            SizedBox(width: 12),
+                            SizedBox(width: 25),
                             _buildStatCard(
                               'Completed',
                               ordersProvider
@@ -113,13 +104,6 @@ class _VendorOrdersScreenState extends State<VendorOrdersScreen>
                               screenWidth,
                             ),
                             SizedBox(width: 12),
-                            _buildStatCard(
-                              'Revenue',
-                              'P ${ordersProvider.getTotalVendorRevenue(widget.vendorId).toStringAsFixed(0)}',
-                              Colors.green,
-                              FontAwesomeIcons.moneyBill,
-                              screenWidth,
-                            ),
                           ],
                         ),
                       ),
@@ -194,7 +178,7 @@ class _VendorOrdersScreenState extends State<VendorOrdersScreen>
   Widget _buildStatCard(String title, String value, Color color, IconData icon,
       double screenWidth) {
     return Container(
-      width: screenWidth * 0.28,
+      width: screenWidth * 0.4,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -665,7 +649,7 @@ class _VendorOrdersScreenState extends State<VendorOrdersScreen>
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return Colors.orange;
+        return Colors.yellow;
       case 'processing':
         return Colors.blue;
       case 'completed':

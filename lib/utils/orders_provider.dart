@@ -71,9 +71,6 @@ class OrdersProvider extends ChangeNotifier {
   }
 
   // VENDOR STATISTICS METHODS
-  // Get total orders count for vendor
-  int getTotalVendorOrders(String vendorId) =>
-      getOrdersForVendor(vendorId).length;
 
   // Get pending orders count for vendor
   int getPendingVendorOrders(String vendorId) =>
@@ -121,7 +118,6 @@ class OrdersProvider extends ChangeNotifier {
   Map<String, int> getOrdersAnalytics(String vendorId) {
     final vendorOrders = getOrdersForVendor(vendorId);
     return {
-      'total': vendorOrders.length,
       'pending':
           vendorOrders.where((order) => order.status == 'Pending').length,
       'completed':
