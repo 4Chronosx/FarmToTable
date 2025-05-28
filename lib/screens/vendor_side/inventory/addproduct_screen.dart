@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:farm2you/utils/inventory_provider.dart';
 import 'package:farm2you/models/product_model.dart';
 import 'package:farm2you/utils/vendor_provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -19,12 +21,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _sourceController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
+  final TextEditingController _imageUrlController = TextEditingController();
 
   // Selection states
   String selectedUnit = 'Unit';
   String selectedCategory = 'Category';
   bool isDropdownOpen = false;
   bool isCategoryDropdownOpen = false;
+  String? _selectedImagePath;
+  bool _isImageUploading = false;
 
   final List<Map<String, String>> unitOptions = [
     {'label': 'kilograms (kg)', 'value': 'kg'},
@@ -211,13 +216,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
       child: Stack(
         children: [
-          // Placeholder image
+          // Image preview
           Container(
             width: double.infinity,
             height: double.infinity,
             decoration: ShapeDecoration(
-              image: const DecorationImage(
-                image: NetworkImage("https://placehold.co/390x270"),
+              image: DecorationImage(
+                image: _selectedImagePath != null
+                    ? FileImage(File(_selectedImagePath!)) as ImageProvider
+                    : _imageUrlController.text.isNotEmpty
+                        ? NetworkImage(_imageUrlController.text)
+                        : const NetworkImage("https://placehold.co/390x270"),
                 fit: BoxFit.cover,
               ),
               shape: RoundedRectangleBorder(
@@ -228,9 +237,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           // Centered upload button overlay
           Center(
             child: ElevatedButton(
-              onPressed: () {
-                // Handle image upload
-              },
+              onPressed: _isImageUploading ? null : _showUploadDialog,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF77905B),
                 foregroundColor: Colors.white,
@@ -241,14 +248,23 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'UPLOAD',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child: _isImageUploading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      'UPLOAD',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
             ),
           ),
         ],
@@ -576,7 +592,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   category: selectedCategory,
                   vendor: vendorProvider.currentVendorName,
                   vendorId: vendorProvider.currentVendorId,
-                  imgPath: "https://placehold.co/390x270",
+                  imgPath: _selectedImagePath ?? _imageUrlController.text,
                   price: double.parse(_priceController.text),
                   unit: selectedUnit,
                   stock: int.parse(_stockController.text),
@@ -638,6 +654,136 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _descriptionController.dispose();
     _sourceController.dispose();
     _stockController.dispose();
+    _imageUrlController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        setState(() {
+          _selectedImagePath = image.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
+  Future<void> _showUploadDialog() {
+    _imageUrlController.clear();
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text(
+                'Upload Product Image',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        await _pickImage();
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.photo_library),
+                      label: const Text('Choose from Device'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFA9BC8E),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'OR',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF91958E),
+                        fontSize: 16,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE7EAE5)),
+                      ),
+                      child: TextField(
+                        controller: _imageUrlController,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter image URL',
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Color(0xFF91958E),
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_imageUrlController.text.isNotEmpty) {
+                      setState(() {
+                        _selectedImagePath = null;
+                      });
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Please enter an image URL')),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF0D003),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }

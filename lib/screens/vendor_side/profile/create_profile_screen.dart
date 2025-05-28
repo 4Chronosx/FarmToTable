@@ -4,6 +4,8 @@ import 'package:farm2you/utils/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:farm2you/commons.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class CreateProfileScreen extends StatefulWidget {
   const CreateProfileScreen({super.key});
@@ -14,6 +16,171 @@ class CreateProfileScreen extends StatefulWidget {
 
 class _CreateProfileScreenState extends State<CreateProfileScreen> {
   int selectedIndex = 0;
+  String? _selectedImagePath;
+  final TextEditingController _imageUrlController = TextEditingController();
+
+  @override
+  void dispose() {
+    _imageUrlController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        setState(() {
+          _selectedImagePath = image.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
+  Future<void> _showUploadDialog(
+      BuildContext context, ProfileProvider profileProvider, String type) {
+    _selectedImagePath = null;
+    _imageUrlController.clear();
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                'Upload ${type == 'logo' ? 'Store Logo' : 'Cover Image'}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_selectedImagePath != null)
+                      Container(
+                        height: 200,
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xFFE7EAE5)),
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            image: FileImage(File(_selectedImagePath!)),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        await _pickImage();
+                        setState(() {}); // Update dialog state to show preview
+                      },
+                      icon: const Icon(Icons.photo_library),
+                      label: const Text('Choose from Device'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFA9BC8E),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'OR',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF91958E),
+                        fontSize: 16,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE7EAE5)),
+                      ),
+                      child: TextField(
+                        controller: _imageUrlController,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter image URL',
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Color(0xFF91958E),
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_selectedImagePath == null &&
+                        _imageUrlController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Please select an image or enter a URL')),
+                      );
+                      return;
+                    }
+
+                    String? uploadedUrl;
+                    if (_selectedImagePath != null) {
+                      uploadedUrl = await profileProvider.uploadFile(
+                          _selectedImagePath!, type);
+                    } else if (_imageUrlController.text.isNotEmpty) {
+                      uploadedUrl = _imageUrlController.text;
+                    }
+
+                    if (uploadedUrl != null) {
+                      if (type == 'logo') {
+                        profileProvider.storeLogoController.text = uploadedUrl;
+                      }
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF0D003),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   // Common styles
   final _inputDecoration = BoxDecoration(
@@ -208,13 +375,10 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ElevatedButton(
-              onPressed: profileProvider.isUploading
-                  ? null
-                  : () async {
-                      // Handle upload action
-                      String type = hint.contains('Logo') ? 'logo' : 'cover';
-                      await profileProvider.uploadFile('', type);
-                    },
+              onPressed: () {
+                String type = hint.contains('Logo') ? 'logo' : 'cover';
+                _showUploadDialog(context, profileProvider, type);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFA9BC8E),
                 foregroundColor: Colors.white,
@@ -222,8 +386,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(35), // Changed from 12 to 35
+                  borderRadius: BorderRadius.circular(35),
                 ),
                 textStyle: const TextStyle(
                   fontSize: 12,
@@ -231,16 +394,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              child: profileProvider.isUploading
-                  ? const SizedBox(
-                      width: 12,
-                      height: 12,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : const Text('UPLOAD'),
+              child: const Text('UPLOAD'),
             ),
           ),
         ],
