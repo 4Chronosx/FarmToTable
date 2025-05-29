@@ -1,6 +1,7 @@
 // ignore_for_file: sized_box_for_whitespace
 
 import 'package:farm2you/commons.dart';
+import 'package:farm2you/services/authentication/auth_service.dart';
 import 'package:farm2you/widgets/input_field.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,9 +12,27 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  final authService = AuthService();
+
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   int selectedIndex = 0;
+
+  void login() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    try {
+      await authService.signInWithEmailPassword(email, password);
+      
+    } catch(e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,14 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: screenWidth * 0.7,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: () {
-                                if (selectedIndex == 0) {
-                                  context.push('/mainhomescreen');
-                                } else {
-                                  context.push('/createprofilevendor');
-                                }
-                                
-                              },
+                              onPressed: login,
                               style: ButtonStyle(
                                   backgroundColor: WidgetStateColor.fromMap({
                                     WidgetState.pressed:
@@ -264,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               GestureDetector(
                                 onTap: (){
-                                  context.go('/signup');
+                                  context.push('/signup');
                                 },
                                 child: Text(
                                   " Sign up",

@@ -13,6 +13,7 @@ import 'package:farm2you/screens/user_side/sub_pages/checkout/checkout_page.dart
 import 'package:farm2you/screens/user_side/sub_pages/order_details/order_details.dart';
 import 'package:farm2you/screens/user_side/sub_pages/product_details/product_details_page.dart';
 import 'package:farm2you/screens/vendor_side/create_profile_screen.dart';
+import 'package:farm2you/services/authentication/auth_gate.dart';
 import 'package:farm2you/utils/cart_provider.dart';
 import 'package:farm2you/utils/checkout_provider.dart';
 import 'package:farm2you/utils/navigation_provider.dart';
@@ -23,6 +24,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -30,6 +33,8 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  await Supabase.initialize(url: "https://zhvosnfvtoqalhjfpjfm.supabase.co", anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpodm9zbmZ2dG9xYWxoamZwamZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczNTgzMjIsImV4cCI6MjA2MjkzNDMyMn0.cVRsslf1HRPG92Tuc45Q4cr0CxjmWjCzDe12hnZ4Esg");
 
   runApp(
     MultiProvider(
@@ -134,6 +139,12 @@ final GoRouter _router = GoRouter(
       path: '/createprofilevendor',
       builder: (BuildContext context, GoRouterState state) {
         return CreateProfileScreen();
+      },
+    ),
+    GoRoute(
+      path: '/authgate',
+      builder: (BuildContext context, GoRouterState state) {
+        return AuthGate();
       },
     ),
   ],

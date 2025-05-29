@@ -1,5 +1,6 @@
 
 import 'package:farm2you/commons.dart';
+import 'package:farm2you/services/authentication/auth_service.dart';
 import 'package:farm2you/widgets/searchbar.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -12,13 +13,23 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
-  @override
 
+  final authService = AuthService();
+
+  void logout() async {
+    await authService.signOut();
+  }
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final mapControllerVar = MapController();
 
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(onPressed: logout, icon: Icon(FontAwesomeIcons.rightFromBracket),)
+        ],
+      ),
       body: Stack(
         children: [
           FlutterMap(

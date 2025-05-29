@@ -18,7 +18,7 @@ class _SplashscreenState extends State<Splashscreen> with SingleTickerProviderSt
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(Duration(seconds: 2), () {
         if (mounted) {
-          context.go('/login');
+          context.go('/authgate');
         }
       });
     });
