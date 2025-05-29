@@ -1,6 +1,7 @@
 // ignore_for_file: sized_box_for_whitespace
 
 import 'package:farm2you/commons.dart';
+import 'package:farm2you/services/authentication/auth_service.dart';
 import 'package:farm2you/widgets/input_field.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -11,12 +12,41 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+
+
+  final authService = AuthService();
+
+
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _passwordConfirmController =
       TextEditingController();
+
   int selectedIndex = 0;
+
+  void signUp() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final confirm = _passwordConfirmController.text;
+
+    if (password != confirm) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Password don't match")));
+      return;
+    }
+
+    try {
+      await authService.signUpWitheEmailPassword(email, password);
+      if (mounted) {
+        context.pop();
+      }
+    } catch(e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,13 +179,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             width: screenWidth * 0.7,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: () {
-                                if (selectedIndex == 0) {
-                                  context.push('/login');
-                                } else {
-                                  context.push('/createprofilevendor');
-                                }
-                              },
+                              onPressed: signUp,
+
                               style: ButtonStyle(
                                   backgroundColor: WidgetStateColor.fromMap({
                                     WidgetState.pressed:
