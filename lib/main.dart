@@ -1,3 +1,4 @@
+import 'package:farm2you/commons.dart';
 import 'package:farm2you/models/category_model.dart';
 import 'package:farm2you/models/orderset_model.dart';
 import 'package:farm2you/models/product_model.dart';
@@ -12,14 +13,32 @@ import 'package:farm2you/screens/user_side/sub_pages/category/category_page.dart
 import 'package:farm2you/screens/user_side/sub_pages/checkout/checkout_page.dart';
 import 'package:farm2you/screens/user_side/sub_pages/order_details/order_details.dart';
 import 'package:farm2you/screens/user_side/sub_pages/product_details/product_details_page.dart';
-import 'package:farm2you/screens/vendor_side/create_profile_screen.dart';
+
 import 'package:farm2you/services/authentication/auth_gate.dart';
+
+import 'package:farm2you/screens/vendor_side/profile/create_profile_screen.dart';
+import 'package:farm2you/screens/vendor_side/profile/store_location_screen.dart';
+import 'package:farm2you/screens/vendor_side/profile/registered_screen.dart';
+import 'package:farm2you/screens/vendor_side/profile/vendor_profile_screen.dart';
+import 'package:farm2you/screens/vendor_side/dashboard/dashboard_screen.dart';
+import 'package:farm2you/screens/vendor_side/inventory/addproduct_screen.dart';
+import 'package:farm2you/screens/vendor_side/inventory/editproduct_screen.dart';
+import 'package:farm2you/screens/vendor_side/inventory/vendor_product_details_screen.dart';
+import 'package:farm2you/screens/vendor_side/inventory/inventory_screen.dart';
+import 'package:farm2you/screens/vendor_side/orders/vendor_orders_screen.dart';
+import 'package:farm2you/screens/vendor_side/orders/completedorders_screen.dart';
+import 'package:farm2you/screens/vendor_side/orders/pendingorders_screen.dart';
+
 import 'package:farm2you/utils/cart_provider.dart';
 import 'package:farm2you/utils/checkout_provider.dart';
 import 'package:farm2you/utils/navigation_provider.dart';
 import 'package:farm2you/utils/orders_provider.dart';
+import 'package:farm2you/utils/inventory_provider.dart';
+import 'package:farm2you/utils/profile_provider.dart';
+import 'package:farm2you/utils/vendor_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:farm2you/screens/splashscreen/splashscreen.dart';
+import 'package:farm2you/screens/splashscreen/splashscreen2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -42,7 +61,14 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => CheckoutProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider(create: (_) => OrdersProvider())
+        ChangeNotifierProvider(create: (_) => OrdersProvider()),
+        ChangeNotifierProvider(create: (_) => InventoryProvider()),
+        ChangeNotifierProvider(create: (_) => VendorProvider()),
+        ChangeNotifierProxyProvider<VendorProvider, ProfileProvider>(
+          create: (context) => ProfileProvider(context.read<VendorProvider>()),
+          update: (context, vendorProvider, previous) =>
+              previous ?? ProfileProvider(vendorProvider),
+        ),
       ],
       child: MyApp(),
     ),
@@ -57,6 +83,12 @@ final GoRouter _router = GoRouter(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
         return const Splashscreen();
+      },
+    ),
+    GoRoute(
+      path: '/splash2',
+      builder: (BuildContext context, GoRouterState state) {
+        return const SplashScreen2();
       },
     ),
     GoRoute(
@@ -135,10 +167,87 @@ final GoRouter _router = GoRouter(
         return OrderDetails(orderSet: orderSet);
       },
     ),
+    //Vendor Side
     GoRoute(
       path: '/createprofilevendor',
       builder: (BuildContext context, GoRouterState state) {
         return CreateProfileScreen();
+      },
+    ),
+    GoRoute(
+      path: '/storelocation',
+      builder: (BuildContext context, GoRouterState state) {
+        return StoreLocationScreen();
+      },
+    ),
+    GoRoute(
+      path: '/registeredsplash',
+      builder: (BuildContext context, GoRouterState state) {
+        return RegisteredScreen();
+      },
+    ),
+    GoRoute(
+      path: '/vendorprofile',
+      builder: (BuildContext context, GoRouterState state) {
+        return VendorProfileScreen();
+      },
+    ),
+    GoRoute(
+      path: '/dashboard',
+      builder: (BuildContext context, GoRouterState state) {
+        return DashboardScreen();
+      },
+    ),
+    GoRoute(
+      path: '/addproduct',
+      builder: (BuildContext context, GoRouterState state) {
+        return AddProductScreen();
+      },
+    ),
+    GoRoute(
+      path: '/editproduct',
+      builder: (BuildContext context, GoRouterState state) {
+        final productId = state.extra as int;
+        return EditProductScreen(productId: productId);
+      },
+    ),
+    GoRoute(
+      path: '/vendor_product_details',
+      builder: (BuildContext context, GoRouterState state) {
+        final product = state.extra as ProductModel;
+        return VendorProductDetailsScreen(product: product);
+      },
+    ),
+    GoRoute(
+      path: '/inventory',
+      builder: (BuildContext context, GoRouterState state) {
+        return InventoryScreen();
+      },
+    ),
+    GoRoute(
+      path: '/vendororders',
+      builder: (BuildContext context, GoRouterState state) {
+        return Consumer<VendorProvider>(
+          builder: (context, vendorProvider, child) {
+            return VendorOrdersScreen(
+              vendorId: vendorProvider.currentVendorId,
+              vendorName: vendorProvider.currentVendorName,
+            );
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/completedorders',
+      builder: (BuildContext context, GoRouterState state) {
+        return CompletedOrdersScreen();
+      },
+    ),
+    GoRoute(
+      path: '/pendingorders',
+      builder: (BuildContext context, GoRouterState state) {
+        return PendingOrdersScreen();
+
       },
     ),
     GoRoute(

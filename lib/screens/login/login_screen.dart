@@ -3,6 +3,8 @@
 import 'package:farm2you/commons.dart';
 import 'package:farm2you/services/authentication/auth_service.dart';
 import 'package:farm2you/widgets/input_field.dart';
+import 'package:farm2you/utils/vendor_provider.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,6 +21,38 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   int selectedIndex = 0;
+  String _errorMessage = '';
+
+  void _handleLogin(BuildContext context) {
+    if (selectedIndex == 0) {
+      context.push('/mainhomescreen');
+      return;
+    }
+
+    // Farmer login - requires validation
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter both email and password';
+      });
+      return;
+    }
+
+    final vendorProvider = context.read<VendorProvider>();
+    final vendorData = vendorProvider.findVendorByEmail(email);
+
+    if (vendorData != null) {
+      // In a real app, you would verify the password here
+      vendorProvider.loginExistingVendor(vendorData['vendorId']);
+      context.push('/dashboard');
+    } else {
+      setState(() {
+        _errorMessage = 'Invalid email or password';
+      });
+    }
+  }
 
   void login() async {
     final email = _emailController.text;
@@ -113,8 +147,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             onToggle: (index) {
                               setState(() {
                                 selectedIndex = index!;
+                                _errorMessage = '';
                               });
-                              print('switched to: $index');
                             },
                           ),
                           SizedBox(
@@ -125,7 +159,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               screenWidth,
                               screenHeight,
                               _emailController,
-                              Icon(FontAwesomeIcons.envelope, size: 20), 'Email'),
+                              Icon(FontAwesomeIcons.envelope, size: 20),
+                              'Email'),
                           SizedBox(
                             width: screenWidth,
                             height: 20,
@@ -134,7 +169,20 @@ class _LoginScreenState extends State<LoginScreen> {
                               screenWidth,
                               screenHeight,
                               _passwordController,
-                              Icon(FontAwesomeIcons.lock, size: 20), 'Password'),
+                              Icon(FontAwesomeIcons.lock, size: 20),
+                              'Password'),
+                          if (_errorMessage.isNotEmpty && selectedIndex == 1)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                _errorMessage,
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ),
                           SizedBox(
                             width: screenWidth,
                             height: 40,
@@ -157,8 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   }),
                                   shape: WidgetStatePropertyAll(
                                       RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        50), // Rounded corners
+                                    borderRadius: BorderRadius.circular(50),
                                   ))),
                               child: Text('Login',
                                   style: TextStyle(
@@ -170,14 +217,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           Padding(
                             padding: EdgeInsets.all(15),
-                            child: Text(
-                              'Forgot you password?',
-                              style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500)
-                            ),
+                            child: Text('Forgot your password?',
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500)),
                           )
                         ],
                       )),
@@ -277,6 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               GestureDetector(
                                 onTap: (){
                                   context.push('/signup');
+
                                 },
                                 child: Text(
                                   " Sign up",

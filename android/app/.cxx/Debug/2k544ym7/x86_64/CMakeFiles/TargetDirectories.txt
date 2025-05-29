@@ -1,0 +1,2 @@
+C:/Users/Arnine/School Projects/127/FarmToYou/android/app/.cxx/Debug/2k544ym7/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/Arnine/School Projects/127/FarmToYou/android/app/.cxx/Debug/2k544ym7/x86_64/CMakeFiles/rebuild_cache.dir
