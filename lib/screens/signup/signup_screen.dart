@@ -14,7 +14,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordConfirmController = TextEditingController();
+  final TextEditingController _passwordConfirmController =
+      TextEditingController();
   int selectedIndex = 0;
 
   @override
@@ -108,7 +109,8 @@ class _SignupScreenState extends State<SignupScreen> {
                               screenWidth,
                               screenHeight,
                               _nameController,
-                              Icon(FontAwesomeIcons.user, size: 20), 'Name'),
+                              Icon(FontAwesomeIcons.user, size: 20),
+                              'Name'),
                           SizedBox(
                             width: screenWidth,
                             height: 20,
@@ -117,7 +119,8 @@ class _SignupScreenState extends State<SignupScreen> {
                               screenWidth,
                               screenHeight,
                               _emailController,
-                              Icon(FontAwesomeIcons.envelope, size: 20), 'Email'),
+                              Icon(FontAwesomeIcons.envelope, size: 20),
+                              'Email'),
                           SizedBox(
                             width: screenWidth,
                             height: 20,
@@ -126,7 +129,8 @@ class _SignupScreenState extends State<SignupScreen> {
                               screenWidth,
                               screenHeight,
                               _passwordController,
-                              Icon(FontAwesomeIcons.lockOpen, size: 20), 'Password'),
+                              Icon(FontAwesomeIcons.lockOpen, size: 20),
+                              'Password'),
                           SizedBox(
                             width: screenWidth,
                             height: 20,
@@ -135,7 +139,8 @@ class _SignupScreenState extends State<SignupScreen> {
                               screenWidth,
                               screenHeight,
                               _passwordConfirmController,
-                              Icon(FontAwesomeIcons.lock, size: 20), 'Confirm Password'),
+                              Icon(FontAwesomeIcons.lock, size: 20),
+                              'Confirm Password'),
                           SizedBox(
                             width: screenWidth,
                             height: 20,
@@ -144,7 +149,13 @@ class _SignupScreenState extends State<SignupScreen> {
                             width: screenWidth * 0.7,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                if (selectedIndex == 0) {
+                                  context.push('/login');
+                                } else {
+                                  context.push('/createprofilevendor');
+                                }
+                              },
                               style: ButtonStyle(
                                   backgroundColor: WidgetStateColor.fromMap({
                                     WidgetState.pressed:
@@ -169,7 +180,6 @@ class _SignupScreenState extends State<SignupScreen> {
                                       fontWeight: FontWeight.bold)),
                             ),
                           ),
-                          
                         ],
                       )),
                   Container(
@@ -266,7 +276,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                     color: Colors.grey),
                               ),
                               GestureDetector(
-                                onTap: (){
+                                onTap: () {
                                   context.go('/login');
                                 },
                                 child: Text(
