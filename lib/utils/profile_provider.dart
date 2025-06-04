@@ -16,6 +16,14 @@ class ProfileProvider extends ChangeNotifier {
   final TextEditingController _storeLogoController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
 
+  // Store location specific controllers
+  final TextEditingController _storeAddressController = TextEditingController();
+  String _latitude = '';
+  String _longitude = '';
+
+  // Location search suggestions
+  List<Map<String, dynamic>> _locationSuggestions = [];
+
   // Category selection states
   bool _isFruitSelected = false;
   bool _isVegetableSelected = false;
@@ -39,6 +47,12 @@ class ProfileProvider extends ChangeNotifier {
   TextEditingController get emailController => _emailController;
   TextEditingController get storeLogoController => _storeLogoController;
   TextEditingController get locationController => _locationController;
+  TextEditingController get storeAddressController => _storeAddressController;
+
+  // Getters for store location
+  String get latitude => _latitude;
+  String get longitude => _longitude;
+  List<Map<String, dynamic>> get locationSuggestions => _locationSuggestions;
 
   // Getters for category selections
   bool get isFruitSelected => _isFruitSelected;
@@ -90,6 +104,31 @@ class ProfileProvider extends ChangeNotifier {
       _emailController.text.isNotEmpty &&
       _areaCodeController.text.length == 2 &&
       _phoneNumberController.text.length == 10;
+
+  // Set store location data
+  void setStoreLocation({
+    required String address,
+    required String latitude,
+    required String longitude,
+  }) {
+    _storeAddressController.text = address;
+    _latitude = latitude;
+    _longitude = longitude;
+    _locationController.text = address; // Update the main location field
+    notifyListeners();
+  }
+
+  // Set location suggestions from search
+  void setLocationSuggestions(List<dynamic> suggestions) {
+    _locationSuggestions = suggestions.cast<Map<String, dynamic>>();
+    notifyListeners();
+  }
+
+  // Clear location suggestions
+  void clearLocationSuggestions() {
+    _locationSuggestions.clear();
+    notifyListeners();
+  }
 
   // Get controller by field key
   TextEditingController getController(String key) {
@@ -206,6 +245,10 @@ class ProfileProvider extends ChangeNotifier {
     _emailController.clear();
     _storeLogoController.clear();
     _locationController.clear();
+    _storeAddressController.clear();
+    _latitude = '';
+    _longitude = '';
+    _locationSuggestions = [];
 
     // Reset all categories
     _isFruitSelected = false;
@@ -230,6 +273,9 @@ class ProfileProvider extends ChangeNotifier {
     _emailController.text = profileData['email'] ?? '';
     _storeLogoController.text = profileData['storeLogo'] ?? '';
     _locationController.text = profileData['location'] ?? '';
+    _storeAddressController.text = profileData['storeAddress'] ?? '';
+    _latitude = profileData['latitude'] ?? '';
+    _longitude = profileData['longitude'] ?? '';
 
     // Load categories
     List<String> selectedCategories =
@@ -258,6 +304,9 @@ class ProfileProvider extends ChangeNotifier {
       'email': _emailController.text,
       'storeLogo': _storeLogoController.text,
       'location': _locationController.text,
+      'storeAddress': _storeAddressController.text,
+      'latitude': _latitude,
+      'longitude': _longitude,
       'categories': getSelectedCategoryKeys(),
       'categoryLabels': getSelectedCategories(),
     };
@@ -341,6 +390,7 @@ class ProfileProvider extends ChangeNotifier {
     _emailController.dispose();
     _storeLogoController.dispose();
     _locationController.dispose();
+    _storeAddressController.dispose();
     super.dispose();
   }
 }
