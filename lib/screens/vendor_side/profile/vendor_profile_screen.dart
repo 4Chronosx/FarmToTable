@@ -1,14 +1,26 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:farm2you/services/authentication/auth_service.dart';
 import 'package:farm2you/widgets/vendor_navigationbar.dart';
 import 'package:farm2you/utils/profile_provider.dart';
 import 'package:farm2you/utils/vendor_provider.dart';
 
-class VendorProfileScreen extends StatelessWidget {
+import '../../../commons.dart';
+
+class VendorProfileScreen extends StatefulWidget {
   const VendorProfileScreen({Key? key}) : super(key: key);
 
   @override
+  State<VendorProfileScreen> createState() => _VendorProfileScreenState();
+}
+
+class _VendorProfileScreenState extends State<VendorProfileScreen> {
+  final authService = AuthService();
+
+  void logout() async {
+    await authService.signOut();
+  }
+  @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -75,6 +87,11 @@ class VendorProfileScreen extends StatelessWidget {
             ),
           ),
         ),
+        IconButton(onPressed: () {
+          setState(() {
+            logout();
+          });
+        }, icon: Icon(FontAwesomeIcons.rightFromBracket),)
       ],
     );
   }

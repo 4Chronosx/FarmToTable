@@ -30,6 +30,8 @@ class _SignupScreenState extends State<SignupScreen> {
     final email = _emailController.text;
     final password = _passwordController.text;
     final confirm = _passwordConfirmController.text;
+    bool isCustomer;
+    selectedIndex == 0 ? isCustomer = true : isCustomer = false;
 
     if (password != confirm) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Password don't match")));
@@ -37,7 +39,7 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     try {
-      await authService.signUpWitheEmailPassword(email, password);
+      await authService.signUpWitheEmailPassword(email, password, isCustomer);
       if (mounted) {
         context.pop();
       }
@@ -52,6 +54,9 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    
+
+
     return Scaffold(
         resizeToAvoidBottomInset: false,
         body: CustomPaint(
@@ -133,17 +138,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           SizedBox(
                             width: screenWidth,
-                            height: 20,
-                          ),
-                          detailsInputField(
-                              screenWidth,
-                              screenHeight,
-                              _nameController,
-                              Icon(FontAwesomeIcons.user, size: 20),
-                              'Name'),
-                          SizedBox(
-                            width: screenWidth,
-                            height: 20,
+                            height: 50,
                           ),
                           detailsInputField(
                               screenWidth,

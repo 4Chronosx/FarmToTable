@@ -5,7 +5,8 @@ Container detailsInputField(
     double screenHeight,
     TextEditingController textEditingControllerVar,
     Icon myIcon,
-    String placeholder) {
+    String placeholder, 
+    {bool hideText = false}) {
   return Container(
     width: screenWidth * 0.7,
     height: 50,
@@ -29,6 +30,7 @@ Container detailsInputField(
           Expanded(
             child: TextField(
               controller: textEditingControllerVar,
+              obscureText: hideText,
               style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 12,

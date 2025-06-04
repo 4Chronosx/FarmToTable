@@ -35,15 +35,27 @@ import 'package:farm2you/utils/navigation_provider.dart';
 import 'package:farm2you/utils/orders_provider.dart';
 import 'package:farm2you/utils/inventory_provider.dart';
 import 'package:farm2you/utils/profile_provider.dart';
+import 'package:farm2you/utils/role_provider.dart';
 import 'package:farm2you/utils/vendor_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:farm2you/screens/splashscreen/splashscreen.dart';
 import 'package:farm2you/screens/splashscreen/splashscreen2.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+
+// New class to listen to Supabase auth changes and notify GoRouter
+class AuthStateListener extends ChangeNotifier {
+  AuthStateListener() {
+    // Listen to the Supabase auth state changes
+    Supabase.instance.client.auth.onAuthStateChange.listen((_) {
+      // Notify all listeners (including GoRouter) when the auth state changes
+      notifyListeners();
+    });
+  }
+}
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,6 +76,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
         ChangeNotifierProvider(create: (_) => InventoryProvider()),
         ChangeNotifierProvider(create: (_) => VendorProvider()),
+        ChangeNotifierProvider(create: (_) => RoleProvider()),
+        // Provide the new AuthStateListener
+        ChangeNotifierProvider(create: (_) => AuthStateListener()),
         ChangeNotifierProxyProvider<VendorProvider, ProfileProvider>(
           create: (context) => ProfileProvider(context.read<VendorProvider>()),
           update: (context, vendorProvider, previous) =>
@@ -76,191 +91,227 @@ void main() async {
 }
 
 /// The route configuration.
-final GoRouter _router = GoRouter(
-  initialLocation: '/',
-  routes: <RouteBase>[
-    GoRoute(
-      path: '/',
-      builder: (BuildContext context, GoRouterState state) {
-        return const Splashscreen();
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _router = GoRouter(
+      initialLocation: '/',
+      // Use the AuthStateListener here
+      refreshListenable: Provider.of<AuthStateListener>(context, listen: false),
+      redirect: (BuildContext context, GoRouterState state) {
+        final session = Supabase.instance.client.auth.currentSession;
+        final bool isAuthenticated = session != null;
+
+         // Define routes that are accessible without authentication
+        const List<String> unauthenticatedRoutes = ['/login', '/signup', '/', '/splash2'];
+        final currentRoute = state.uri.toString();
+        // Check if the current location is one of the unauthenticated routes
+        final bool isGoingToUnauthenticatedRoute = unauthenticatedRoutes.contains(state.uri.toString());
+
+
+        
+        
+
+        // If not authenticated and trying to go to a protected route, redirect to login
+        if (!isAuthenticated && !isGoingToUnauthenticatedRoute ) {
+          return '/login';
+        }
+
+        // If authenticated and trying to access login, signup, or splash screens,
+        // redirect to AuthGate to handle role-based navigation.
+        if (isAuthenticated && isGoingToUnauthenticatedRoute) {
+          return '/authgate';
+        }
+
+        // No redirect needed for other authenticated routes or if it's an unauthenticated
+        // route and the user is not authenticated.
+        return null;
       },
-    ),
-    GoRoute(
-      path: '/splash2',
-      builder: (BuildContext context, GoRouterState state) {
-        return const SplashScreen2();
-      },
-    ),
-    GoRoute(
-      path: '/category',
-      builder: (BuildContext context, GoRouterState state) {
-        final category = state.extra as CategoryModel;
-        return CategoryPage(category: category);
-      },
-    ),
-    GoRoute(
-      path: '/login',
-      builder: (BuildContext context, GoRouterState state) {
-        return const LoginScreen();
-      },
-    ),
-    GoRoute(
-      path: '/signup',
-      builder: (BuildContext context, GoRouterState state) {
-        return const SignupScreen();
-      },
-    ),
-    GoRoute(
-      path: '/login',
-      builder: (BuildContext context, GoRouterState state) {
-        return const LoginScreen();
-      },
-    ),
-    GoRoute(
-      path: '/mainhomescreen',
-      builder: (BuildContext context, GoRouterState state) {
-        return const MainHomeScreen();
-      },
-    ),
-    GoRoute(
-      path: '/explore',
-      builder: (BuildContext context, GoRouterState state) {
-        return const ExploreScreen();
-      },
-    ),
-    GoRoute(
-      path: '/marketplace',
-      builder: (BuildContext context, GoRouterState state) {
-        return const MarketplaceScreen();
-      },
-    ),
-    GoRoute(
-      path: '/cart',
-      builder: (BuildContext context, GoRouterState state) {
-        return const CartScreen();
-      },
-    ),
-    GoRoute(
-      path: '/orders',
-      builder: (BuildContext context, GoRouterState state) {
-        return const OrdersScreen();
-      },
-    ),
-    GoRoute(
-      path: '/product_details',
-      builder: (BuildContext context, GoRouterState state) {
-        final product = state.extra as ProductModel;
-        return ProductDetailsPage(product: product);
-      },
-    ),
-    GoRoute(
-      path: '/checkout',
-      builder: (BuildContext context, GoRouterState state) {
-        final fromBuyNow = state.extra as bool;
-        return CheckoutPage(fromBuyNow: fromBuyNow);
-      },
-    ),
-    GoRoute(
-      path: '/orderdetails',
-      builder: (BuildContext context, GoRouterState state) {
-        final orderSet = state.extra as OrdersetModel;
-        return OrderDetails(orderSet: orderSet);
-      },
-    ),
-    //Vendor Side
-    GoRoute(
-      path: '/createprofilevendor',
-      builder: (BuildContext context, GoRouterState state) {
-        return CreateProfileScreen();
-      },
-    ),
-    GoRoute(
-      path: '/storelocation',
-      builder: (BuildContext context, GoRouterState state) {
-        return StoreLocationScreen();
-      },
-    ),
-    GoRoute(
-      path: '/registeredsplash',
-      builder: (BuildContext context, GoRouterState state) {
-        return RegisteredScreen();
-      },
-    ),
-    GoRoute(
-      path: '/vendorprofile',
-      builder: (BuildContext context, GoRouterState state) {
-        return VendorProfileScreen();
-      },
-    ),
-    GoRoute(
-      path: '/dashboard',
-      builder: (BuildContext context, GoRouterState state) {
-        return DashboardScreen();
-      },
-    ),
-    GoRoute(
-      path: '/addproduct',
-      builder: (BuildContext context, GoRouterState state) {
-        return AddProductScreen();
-      },
-    ),
-    GoRoute(
-      path: '/editproduct',
-      builder: (BuildContext context, GoRouterState state) {
-        final productId = state.extra as int;
-        return EditProductScreen(productId: productId);
-      },
-    ),
-    GoRoute(
-      path: '/vendor_product_details',
-      builder: (BuildContext context, GoRouterState state) {
-        final product = state.extra as ProductModel;
-        return VendorProductDetailsScreen(product: product);
-      },
-    ),
-    GoRoute(
-      path: '/inventory',
-      builder: (BuildContext context, GoRouterState state) {
-        return InventoryScreen();
-      },
-    ),
-    GoRoute(
-      path: '/vendororders',
-      builder: (BuildContext context, GoRouterState state) {
-        return Consumer<VendorProvider>(
-          builder: (context, vendorProvider, child) {
-            return VendorOrdersScreen(
-              vendorId: vendorProvider.currentVendorId,
-              vendorName: vendorProvider.currentVendorName,
+      routes: <RouteBase>[
+        GoRoute(
+          path: '/',
+          builder: (BuildContext context, GoRouterState state) {
+            return const Splashscreen();
+          },
+        ),
+        GoRoute(
+          path: '/splash2',
+          builder: (BuildContext context, GoRouterState state) {
+            return const SplashScreen2();
+          },
+        ),
+        GoRoute(
+          path: '/category',
+          builder: (BuildContext context, GoRouterState state) {
+            final category = state.extra as CategoryModel;
+            return CategoryPage(category: category);
+          },
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (BuildContext context, GoRouterState state) {
+            return const LoginScreen();
+          },
+        ),
+        GoRoute(
+          path: '/signup',
+          builder: (BuildContext context, GoRouterState state) {
+            return const SignupScreen();
+          },
+        ),
+        GoRoute(
+          path: '/mainhomescreen',
+          builder: (BuildContext context, GoRouterState state) {
+            return const MainHomeScreen();
+          },
+        ),
+        GoRoute(
+          path: '/explore',
+          builder: (BuildContext context, GoRouterState state) {
+            return const ExploreScreen();
+          },
+        ),
+        GoRoute(
+          path: '/marketplace',
+          builder: (BuildContext context, GoRouterState state) {
+            return const MarketplaceScreen();
+          },
+        ),
+        GoRoute(
+          path: '/cart',
+          builder: (BuildContext context, GoRouterState state) {
+            return const CartScreen();
+          },
+        ),
+        GoRoute(
+          path: '/orders',
+          builder: (BuildContext context, GoRouterState state) {
+            return const OrdersScreen();
+          },
+        ),
+        GoRoute(
+          path: '/product_details',
+          builder: (BuildContext context, GoRouterState state) {
+            final product = state.extra as ProductModel;
+            return ProductDetailsPage(product: product);
+          },
+        ),
+        GoRoute(
+          path: '/checkout',
+          builder: (BuildContext context, GoRouterState state) {
+            final fromBuyNow = state.extra as bool;
+            return CheckoutPage(fromBuyNow: fromBuyNow);
+          },
+        ),
+        GoRoute(
+          path: '/orderdetails',
+          builder: (BuildContext context, GoRouterState state) {
+            final orderSet = state.extra as OrdersetModel;
+            return OrderDetails(orderSet: orderSet);
+          },
+        ),
+        //Vendor Side
+        GoRoute(
+          path: '/createprofilevendor',
+          builder: (BuildContext context, GoRouterState state) {
+            return CreateProfileScreen();
+          },
+        ),
+        GoRoute(
+          path: '/storelocation',
+          builder: (BuildContext context, GoRouterState state) {
+            return StoreLocationScreen();
+          },
+        ),
+        GoRoute(
+          path: '/registeredsplash',
+          builder: (BuildContext context, GoRouterState state) {
+            return RegisteredScreen();
+          },
+        ),
+        GoRoute(
+          path: '/vendorprofile',
+          builder: (BuildContext context, GoRouterState state) {
+            return VendorProfileScreen();
+          },
+        ),
+        GoRoute(
+          path: '/dashboard',
+          builder: (BuildContext context, GoRouterState state) {
+            return DashboardScreen();
+          },
+        ),
+        GoRoute(
+          path: '/addproduct',
+          builder: (BuildContext context, GoRouterState state) {
+            return AddProductScreen();
+          },
+        ),
+        GoRoute(
+          path: '/editproduct',
+          builder: (BuildContext context, GoRouterState state) {
+            final productId = state.extra as int;
+            return EditProductScreen(productId: productId);
+          },
+        ),
+        GoRoute(
+          path: '/vendor_product_details',
+          builder: (BuildContext context, GoRouterState state) {
+            final product = state.extra as ProductModel;
+            return VendorProductDetailsScreen(product: product);
+          },
+        ),
+        GoRoute(
+          path: '/inventory',
+          builder: (BuildContext context, GoRouterState state) {
+            return InventoryScreen();
+          },
+        ),
+        GoRoute(
+          path: '/vendororders',
+          builder: (BuildContext context, GoRouterState state) {
+            return Consumer<VendorProvider>(
+              builder: (context, vendorProvider, child) {
+                return VendorOrdersScreen(
+                  vendorId: vendorProvider.currentVendorId,
+                  vendorName: vendorProvider.currentVendorName,
+                );
+              },
             );
           },
-        );
-      },
-    ),
-    GoRoute(
-      path: '/completedorders',
-      builder: (BuildContext context, GoRouterState state) {
-        return CompletedOrdersScreen();
-      },
-    ),
-    GoRoute(
-      path: '/pendingorders',
-      builder: (BuildContext context, GoRouterState state) {
-        return PendingOrdersScreen();
-
-      },
-    ),
-    GoRoute(
-      path: '/authgate',
-      builder: (BuildContext context, GoRouterState state) {
-        return AuthGate();
-      },
-    ),
-  ],
-);
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+        ),
+        GoRoute(
+          path: '/completedorders',
+          builder: (BuildContext context, GoRouterState state) {
+            return CompletedOrdersScreen();
+          },
+        ),
+        GoRoute(
+          path: '/pendingorders',
+          builder: (BuildContext context, GoRouterState state) {
+            return PendingOrdersScreen();
+          },
+        ),
+        // Re-added the /authgate route
+        GoRoute(
+          path: '/authgate',
+          builder: (BuildContext context, GoRouterState state) {
+            return AuthGate();
+          },
+        ),
+      ],
+    );
+  }
 
   // This widget is the root of your application.
   @override
