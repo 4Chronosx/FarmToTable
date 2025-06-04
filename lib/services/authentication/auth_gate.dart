@@ -1,6 +1,8 @@
 import 'package:farm2you/commons.dart';
 import 'package:farm2you/screens/login/login_screen.dart';
 import 'package:farm2you/screens/user_side/main_home_screen/main_home_screen.dart';
+import 'package:farm2you/screens/vendor_side/dashboard/dashboard_screen.dart';
+import 'package:farm2you/utils/role_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 
@@ -9,6 +11,8 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final roleProvider = Provider.of<RoleProvider>(context);
+    final role = roleProvider.currentIndex;
     return StreamBuilder(
       stream: Supabase.instance.client.auth.onAuthStateChange, 
       builder: (builder, snapshot) {
@@ -21,7 +25,12 @@ class AuthGate extends StatelessWidget {
         final session = snapshot.hasData ? snapshot.data!.session : null;
 
         if (session != null) {
-          return MainHomeScreen();
+          if (role == 0) {
+            return MainHomeScreen();
+          } else {
+            return DashboardScreen();
+          }
+            
         } else {
           return LoginScreen();
         }

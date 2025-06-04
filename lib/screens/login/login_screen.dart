@@ -4,7 +4,7 @@ import 'package:farm2you/commons.dart';
 import 'package:farm2you/services/authentication/auth_service.dart';
 import 'package:farm2you/widgets/input_field.dart';
 import 'package:farm2you/utils/vendor_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:farm2you/utils/role_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,62 +16,65 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 
   final authService = AuthService();
-
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  
   int selectedIndex = 0;
   String _errorMessage = '';
 
-  void _handleLogin(BuildContext context) {
-    if (selectedIndex == 0) {
-      context.push('/mainhomescreen');
-      return;
-    }
-
-    // Farmer login - requires validation
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        _errorMessage = 'Please enter both email and password';
-      });
-      return;
-    }
-
-    final vendorProvider = context.read<VendorProvider>();
-    final vendorData = vendorProvider.findVendorByEmail(email);
-
-    if (vendorData != null) {
-      // In a real app, you would verify the password here
-      vendorProvider.loginExistingVendor(vendorData['vendorId']);
-      context.push('/dashboard');
-    } else {
-      setState(() {
-        _errorMessage = 'Invalid email or password';
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    final roleProvider = Provider.of<RoleProvider>(context, listen: false);
+    setState(() {
+      roleProvider.selectRole(selectedIndex);
+    });
   }
 
-  void login() async {
+  Future<void> handleLogin() async {
     final email = _emailController.text;
     final password = _passwordController.text;
+    final roleProvider = Provider.of<RoleProvider>(context, listen: false);
+    roleProvider.setRole();
+    roleProvider.setReady(false);
+    final selectedRole = roleProvider.currentRole;
+  try {
+    final response = await authService.signInWithEmailPassword(email,password);
 
-    try {
-      await authService.signInWithEmailPassword(email, password);
-      
-    } catch(e) {
-      if (mounted) {
+    if (response.session != null) {
+      // Get actual role from database
+      String? actualRole = await authService.getRole();
+      print('printing: ${actualRole}');
+      print('print: ${selectedRole}');
+
+      if (actualRole != selectedRole) {
+        // Mismatch: Sign user out and show error
+        await authService.signOut();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: Role mismatch. Login failed!")));
+        }
+
+        
+        return;
+      }
+
+      roleProvider.setReady(true);
+    }
+  } catch (e) {
+    if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
       }
-    }
   }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
+    final roleProvider = Provider.of<RoleProvider>(context);
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
         resizeToAvoidBottomInset: false,
         body: CustomPaint(
@@ -145,9 +148,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                             radiusStyle: true,
                             onToggle: (index) {
+                              
                               setState(() {
+                                
                                 selectedIndex = index!;
                                 _errorMessage = '';
+                                roleProvider.selectRole(index);
                               });
                             },
                           ),
@@ -170,7 +176,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               screenHeight,
                               _passwordController,
                               Icon(FontAwesomeIcons.lock, size: 20),
-                              'Password'),
+                              'Password',
+                              hideText: true
+                            ),
                           if (_errorMessage.isNotEmpty && selectedIndex == 1)
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0),
@@ -191,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: screenWidth * 0.7,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: login,
+                              onPressed: handleLogin,
                               style: ButtonStyle(
                                   backgroundColor: WidgetStateColor.fromMap({
                                     WidgetState.pressed:

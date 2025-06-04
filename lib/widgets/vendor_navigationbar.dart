@@ -87,7 +87,7 @@ class VendorNavigationBar extends StatelessWidget {
         routeName = '/dashboard';
     }
 
-    context.push(routeName);
+    context.go(routeName);
   }
 
   Widget _buildNavItem({
