@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:farm2you/widgets/vendor_navigationbar.dart';
 import 'package:farm2you/utils/orders_provider.dart';
 import 'package:farm2you/utils/profile_provider.dart';
@@ -69,6 +70,7 @@ class DashboardScreen extends StatelessWidget {
             color: Color(0xFF1F2937),
             fontSize: 24,
             fontWeight: FontWeight.w500,
+            fontFamily: 'Poppins',
           ),
         ),
         const SizedBox(height: 4),
@@ -90,6 +92,7 @@ class DashboardScreen extends StatelessWidget {
               style: const TextStyle(
                 color: Color(0xFF838383),
                 fontSize: 15,
+                fontFamily: 'Poppins',
               ),
             ),
           ],
@@ -148,6 +151,7 @@ class DashboardScreen extends StatelessWidget {
               color: Color(0xFF32343E),
               fontSize: 48,
               fontWeight: FontWeight.w700,
+              fontFamily: 'Poppins',
             ),
           ),
           const SizedBox(height: 8),
@@ -158,6 +162,7 @@ class DashboardScreen extends StatelessWidget {
               color: Color(0xFF838699),
               fontSize: 12,
               fontWeight: FontWeight.w600,
+              fontFamily: 'Poppins',
             ),
           ),
         ],
@@ -206,6 +211,7 @@ class DashboardScreen extends StatelessWidget {
                       color: Color(0xFF32343E),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
+                      fontFamily: 'Poppins',
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -215,6 +221,7 @@ class DashboardScreen extends StatelessWidget {
                       color: Color(0xFF32343E),
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
+                      fontFamily: 'Poppins',
                     ),
                   ),
                 ],
@@ -233,6 +240,7 @@ class DashboardScreen extends StatelessWidget {
                       style: TextStyle(
                         color: Color(0xFF9B9BA5),
                         fontSize: 12,
+                        fontFamily: 'Poppins',
                       ),
                     ),
                     SizedBox(width: 4),
@@ -250,22 +258,6 @@ class DashboardScreen extends StatelessWidget {
 
           // Simple Chart Placeholder - Replace with actual chart
           _buildSimpleChart(monthlyRevenue),
-
-          const SizedBox(height: 10),
-          // Month labels (first 7 months)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: months
-                .take(7)
-                .map((month) => Text(
-                      month,
-                      style: const TextStyle(
-                        color: Color(0xFF9B9BA5),
-                        fontSize: 9,
-                      ),
-                    ))
-                .toList(),
-          ),
         ],
       ),
     );
@@ -275,72 +267,100 @@ class DashboardScreen extends StatelessWidget {
     final maxRevenue = monthlyRevenue.isNotEmpty
         ? monthlyRevenue.reduce((a, b) => a > b ? a : b)
         : 600.0;
-    final normalizeBase = maxRevenue > 0 ? maxRevenue : 600.0;
+
+    // Find the month with highest revenue for highlighting
+    int highestRevenueIndex = -1;
+    if (monthlyRevenue.isNotEmpty && maxRevenue > 0) {
+      highestRevenueIndex =
+          monthlyRevenue.indexWhere((revenue) => revenue == maxRevenue);
+    }
 
     return SizedBox(
-      height: 120,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(7, (index) {
-          // Show first 7 months
-          double height = monthlyRevenue.length > index
-              ? (monthlyRevenue[index] / normalizeBase) * 100
-              : 0.0;
-          bool isHighlighted = index == 2 &&
-              monthlyRevenue.length > index &&
-              monthlyRevenue[index] > 0;
-
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (isHighlighted) ...[
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF32343E),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    '₱${monthlyRevenue[index].toInt()}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
+      height: 140,
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceAround,
+          maxY: maxRevenue > 0 ? maxRevenue * 1.2 : 600,
+          minY: 0,
+          barTouchData: BarTouchData(
+            enabled: true,
+            touchTooltipData: BarTouchTooltipData(
+              getTooltipColor: (group) => const Color(0xFF32343E),
+              tooltipRoundedRadius: 4,
+              tooltipPadding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                return BarTooltipItem(
+                  '₱${rod.toY.toInt()}',
+                  const TextStyle(
                     color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.fromBorderSide(
-                      BorderSide(color: Color(0xFFFAE526), width: 2),
-                    ),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
                   ),
-                ),
-                const SizedBox(height: 2),
-              ],
-              Container(
-                width: 4,
-                height:
-                    height > 0 ? height : 2, // Minimum height for visibility
-                decoration: BoxDecoration(
+                );
+              },
+            ),
+          ),
+          titlesData: FlTitlesData(
+            show: true,
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  if (value.toInt() >= 0 && value.toInt() < months.length) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        months[value.toInt()],
+                        style: const TextStyle(
+                          color: Color(0xFF9B9BA5),
+                          fontSize: 9,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    );
+                  }
+                  return const Text('');
+                },
+                reservedSize: 30,
+              ),
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+          gridData: const FlGridData(show: false),
+          barGroups: List.generate(12, (index) {
+            final revenue =
+                monthlyRevenue.length > index ? monthlyRevenue[index] : 0.0;
+            final isHighlighted = index == highestRevenueIndex && revenue > 0;
+
+            return BarChartGroupData(
+              x: index,
+              barRods: [
+                BarChartRodData(
+                  toY: revenue,
+                  width: 12,
+                  borderRadius: BorderRadius.circular(3),
                   gradient: const LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [Color(0xFFFAE526), Color(0x00FFEE84)],
                   ),
-                  borderRadius: BorderRadius.circular(2),
                 ),
-              ),
-            ],
-          );
-        }),
+              ],
+              showingTooltipIndicators: isHighlighted ? [0] : [],
+            );
+          }),
+        ),
       ),
     );
   }
@@ -380,6 +400,7 @@ class DashboardScreen extends StatelessWidget {
                   color: Color(0xFF32343E),
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
+                  fontFamily: 'Poppins',
                 ),
               ),
             ],
@@ -392,13 +413,22 @@ class DashboardScreen extends StatelessWidget {
               Expanded(
                   flex: 2,
                   child: Text('Product',
-                      style: TextStyle(fontWeight: FontWeight.w500))),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                      ))),
               Expanded(
                   child: Text('Price',
-                      style: TextStyle(fontWeight: FontWeight.w500))),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                      ))),
               Expanded(
                   child: Text('Total Sales',
-                      style: TextStyle(fontWeight: FontWeight.w500))),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                      ))),
             ],
           ),
           const SizedBox(height: 16),
@@ -412,14 +442,23 @@ class DashboardScreen extends StatelessWidget {
                       Expanded(
                           flex: 2,
                           child: Text(item['productName'],
-                              style: const TextStyle(fontSize: 12))),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                              ))),
                       Expanded(
                           child: Text('P${item['price'].toStringAsFixed(0)}',
-                              style: const TextStyle(fontSize: 12))),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                              ))),
                       Expanded(
-                          child: Text(
-                              '₱${item['totalSales'].toStringAsFixed(0)}',
-                              style: const TextStyle(fontSize: 12))),
+                          child:
+                              Text('₱${item['totalSales'].toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Poppins',
+                                  ))),
                     ],
                   ),
                 ))
@@ -432,6 +471,7 @@ class DashboardScreen extends StatelessWidget {
                   fontSize: 12,
                   color: Color(0xFF838699),
                   fontStyle: FontStyle.italic,
+                  fontFamily: 'Poppins',
                 ),
               ),
             ),
