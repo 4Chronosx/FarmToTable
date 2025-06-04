@@ -17,7 +17,6 @@ import 'package:farm2you/screens/user_side/sub_pages/product_details/product_det
 import 'package:farm2you/services/authentication/auth_gate.dart';
 
 import 'package:farm2you/screens/vendor_side/profile/create_profile_screen.dart';
-import 'package:farm2you/screens/vendor_side/profile/store_location_screen.dart';
 import 'package:farm2you/screens/vendor_side/profile/registered_screen.dart';
 import 'package:farm2you/screens/vendor_side/profile/vendor_profile_screen.dart';
 import 'package:farm2you/screens/vendor_side/dashboard/dashboard_screen.dart';
@@ -43,7 +42,6 @@ import 'package:farm2you/screens/splashscreen/splashscreen2.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 // New class to listen to Supabase auth changes and notify GoRouter
 class AuthStateListener extends ChangeNotifier {
   AuthStateListener() {
@@ -55,8 +53,6 @@ class AuthStateListener extends ChangeNotifier {
   }
 }
 
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -65,7 +61,10 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  await Supabase.initialize(url: "https://zhvosnfvtoqalhjfpjfm.supabase.co", anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpodm9zbmZ2dG9xYWxoamZwamZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczNTgzMjIsImV4cCI6MjA2MjkzNDMyMn0.cVRsslf1HRPG92Tuc45Q4cr0CxjmWjCzDe12hnZ4Esg");
+  await Supabase.initialize(
+      url: "https://zhvosnfvtoqalhjfpjfm.supabase.co",
+      anonKey:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpodm9zbmZ2dG9xYWxoamZwamZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczNTgzMjIsImV4cCI6MjA2MjkzNDMyMn0.cVRsslf1HRPG92Tuc45Q4cr0CxjmWjCzDe12hnZ4Esg");
 
   runApp(
     MultiProvider(
@@ -112,18 +111,20 @@ class _MyAppState extends State<MyApp> {
         final session = Supabase.instance.client.auth.currentSession;
         final bool isAuthenticated = session != null;
 
-         // Define routes that are accessible without authentication
-        const List<String> unauthenticatedRoutes = ['/login', '/signup', '/', '/splash2'];
+        // Define routes that are accessible without authentication
+        const List<String> unauthenticatedRoutes = [
+          '/login',
+          '/signup',
+          '/',
+          '/splash2'
+        ];
         final currentRoute = state.uri.toString();
         // Check if the current location is one of the unauthenticated routes
-        final bool isGoingToUnauthenticatedRoute = unauthenticatedRoutes.contains(state.uri.toString());
-
-
-        
-        
+        final bool isGoingToUnauthenticatedRoute =
+            unauthenticatedRoutes.contains(state.uri.toString());
 
         // If not authenticated and trying to go to a protected route, redirect to login
-        if (!isAuthenticated && !isGoingToUnauthenticatedRoute ) {
+        if (!isAuthenticated && !isGoingToUnauthenticatedRoute) {
           return '/login';
         }
 
@@ -227,12 +228,7 @@ class _MyAppState extends State<MyApp> {
             return CreateProfileScreen();
           },
         ),
-        GoRoute(
-          path: '/storelocation',
-          builder: (BuildContext context, GoRouterState state) {
-            return StoreLocationScreen();
-          },
-        ),
+
         GoRoute(
           path: '/registeredsplash',
           builder: (BuildContext context, GoRouterState state) {
