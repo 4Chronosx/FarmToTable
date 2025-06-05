@@ -18,12 +18,13 @@ class InventoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /*
   // Add new product
   Future<bool> addProduct(ProductModel product) async {
     try {
       // Generate ID if it's 0
-      if (product.id == 0) {
-        product.id = _getNextId();
+      if (product.pid == '') {
+        product.pid = _getNextId();
       }
 
       _products.add(product);
@@ -95,4 +96,5 @@ class InventoryProvider with ChangeNotifier {
     if (_products.isEmpty) return 1;
     return _products.map((p) => p.id).reduce((a, b) => a > b ? a : b) + 1;
   }
+  */
 }

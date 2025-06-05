@@ -4,6 +4,7 @@ import 'package:farm2you/models/orderset_model.dart';
 import 'package:farm2you/models/product_model.dart';
 import 'package:farm2you/screens/login/login_screen.dart';
 import 'package:farm2you/screens/signup/signup_screen.dart';
+import 'package:farm2you/screens/signup/user_create_profile.dart';
 import 'package:farm2you/screens/user_side/cart/cart_screen.dart';
 import 'package:farm2you/screens/user_side/explore/explore_screen.dart';
 import 'package:farm2you/screens/user_side/main_home_screen/main_home_screen.dart';
@@ -13,6 +14,7 @@ import 'package:farm2you/screens/user_side/sub_pages/category/category_page.dart
 import 'package:farm2you/screens/user_side/sub_pages/checkout/checkout_page.dart';
 import 'package:farm2you/screens/user_side/sub_pages/order_details/order_details.dart';
 import 'package:farm2you/screens/user_side/sub_pages/product_details/product_details_page.dart';
+import 'package:farm2you/screens/user_side/user_profile/user_profile_screen.dart';
 
 import 'package:farm2you/services/authentication/auth_gate.dart';
 
@@ -35,6 +37,7 @@ import 'package:farm2you/utils/orders_provider.dart';
 import 'package:farm2you/utils/inventory_provider.dart';
 import 'package:farm2you/utils/profile_provider.dart';
 import 'package:farm2you/utils/role_provider.dart';
+import 'package:farm2you/utils/user_profile_provider.dart';
 import 'package:farm2you/utils/vendor_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:farm2you/screens/splashscreen/splashscreen.dart';
@@ -70,6 +73,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProvider(create: (_) => CheckoutProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
@@ -118,7 +122,7 @@ class _MyAppState extends State<MyApp> {
           '/',
           '/splash2'
         ];
-        final currentRoute = state.uri.toString();
+
         // Check if the current location is one of the unauthenticated routes
         final bool isGoingToUnauthenticatedRoute =
             unauthenticatedRoutes.contains(state.uri.toString());
@@ -177,6 +181,12 @@ class _MyAppState extends State<MyApp> {
           },
         ),
         GoRoute(
+          path: '/userprofile',
+          builder: (BuildContext context, GoRouterState state) {
+            return const UserProfileScreen();
+          },
+        ),
+        GoRoute(
           path: '/explore',
           builder: (BuildContext context, GoRouterState state) {
             return const ExploreScreen();
@@ -221,6 +231,14 @@ class _MyAppState extends State<MyApp> {
             return OrderDetails(orderSet: orderSet);
           },
         ),
+        GoRoute(
+          path: '/usercreate',
+          builder: (BuildContext context, GoRouterState state) {
+            
+            return const UserCreateProfileScreen();
+          },
+        ),
+        
         //Vendor Side
         GoRoute(
           path: '/createprofilevendor',

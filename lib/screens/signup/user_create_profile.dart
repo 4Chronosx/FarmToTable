@@ -1,38 +1,32 @@
 // ignore_for_file: sized_box_for_whitespace
 
-import 'package:farm2you/services/authentication/auth_service.dart';
-import 'package:farm2you/services/authentication/create_profile_service.dart';
-import 'package:farm2you/utils/profile_provider.dart';
-import 'package:flutter/material.dart';
+
+import 'package:farm2you/utils/user_profile_provider.dart';
+
 import 'package:flutter/services.dart';
 import 'package:farm2you/commons.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:intl/intl.dart';
+
 import 'package:latlong2/latlong.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async';
-import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-class CreateProfileScreen extends StatefulWidget {
-  const CreateProfileScreen({super.key});
+
+class UserCreateProfileScreen extends StatefulWidget {
+  const UserCreateProfileScreen({super.key});
 
   @override
-  State<CreateProfileScreen> createState() => _CreateProfileScreenState();
+  State<UserCreateProfileScreen> createState() =>
+      _UserCreateProfileScreenState();
 }
 
-class _CreateProfileScreenState extends State<CreateProfileScreen> {
-  final authService = AuthService();
-  final SupabaseClient _supabase = Supabase.instance.client;
+class _UserCreateProfileScreenState extends State<UserCreateProfileScreen> {
   int selectedIndex = 0;
   String? _selectedImagePath;
   final TextEditingController _imageUrlController = TextEditingController();
   Timer? _searchTimer;
-  final DateFormat _formatter = DateFormat('yyyy-MM-dd'); // Customize format here
-  DateTime? _selectedDate;
 
   @override
   void dispose() {
@@ -41,33 +35,11 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     super.dispose();
   }
 
-  void logout() async {
-    await authService.signOut();
-  }
-
-  Future<void> selectDate(BuildContext context) async {
-    final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-
-    if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-        profileProvider.birthdate = _formatter.format(picked);
-      });
-    }
-  }
-
-
   // Search for locations using Nominatim API
   Future<void> _onLocationSearch(
-      String query, ProfileProvider profileProvider) async {
+      String query, UserProfileProvider userProfileProvider) async {
     if (query.isEmpty) {
-      profileProvider.clearLocationSuggestions();
+      userProfileProvider.clearLocationSuggestions();
       return;
     }
 
@@ -96,33 +68,33 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
         if (response.statusCode == 200) {
           final List<dynamic> data = json.decode(response.body);
           print('Found ${data.length} results'); // Debug print
-          profileProvider.setLocationSuggestions(data);
+          userProfileProvider.setLocationSuggestions(data);
         } else {
           print('Error: HTTP ${response.statusCode}');
-          profileProvider.clearLocationSuggestions();
+          userProfileProvider.clearLocationSuggestions();
         }
       } catch (e) {
         print('Search error: $e'); // Debug print
-        profileProvider.clearLocationSuggestions();
+        userProfileProvider.clearLocationSuggestions();
       }
     });
   }
 
   // Handle selection of a location suggestion
-  void _selectLocationSuggestion(
-      Map<String, dynamic> suggestion, ProfileProvider profileProvider) {
+  void _selectLocationSuggestion(Map<String, dynamic> suggestion,
+      UserProfileProvider userProfileProvider) {
     final displayName = suggestion['display_name'] ?? '';
     final lat = suggestion['lat'] ?? '';
     final lon = suggestion['lon'] ?? '';
 
-    profileProvider.setStoreLocation(
+    userProfileProvider.setUserLocation(
       address: displayName,
       latitude: lat,
       longitude: lon,
     );
 
     // Clear suggestions after selection
-    profileProvider.clearLocationSuggestions();
+    userProfileProvider.clearLocationSuggestions();
   }
 
   // Reverse geocode to get address from coordinates
@@ -147,44 +119,22 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   }
 
   Future<void> _pickImage() async {
-  try {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image == null) return;
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-    // Read image as bytes
-    final imageBytes = await image.readAsBytes();
-
-    // Generate path using user ID and timestamp
-    final userID = _supabase.auth.currentUser!.id;
-    final imagePath = '/$userID/profile_${DateTime.now().millisecondsSinceEpoch}.png';
-
-    // Upload image to Supabase Storage
-    await _supabase.storage.from('profile').uploadBinary(imagePath, imageBytes);
-
-    // Get public URL for the uploaded image
-    final imageUrl = _supabase.storage.from('profile').getPublicUrl(imagePath);
-
-    /*
-    // Upsert image URL into the 'profiles' table
-    await _supabase.from('Store').upsert({
-      'id': userID,
-      'avatar_url': imageUrl,
-    }); */
-
-    // Update local state
-    setState(() {
-      _selectedImagePath = image.path;
-    });
-  } catch (e) {
-    debugPrint('Error picking image: $e');
+      if (image != null) {
+        setState(() {
+          _selectedImagePath = image.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
   }
-}
 
-
-
-  Future<void> _showUploadDialog(
-      BuildContext context, ProfileProvider profileProvider, String type) {
+  Future<void> _showUploadDialog(BuildContext context,
+      UserProfileProvider userProfileProvider, String type) {
     _selectedImagePath = null;
     _imageUrlController.clear();
 
@@ -195,7 +145,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           builder: (context, setState) {
             return AlertDialog(
               title: Text(
-                'Upload ${type == 'logo' ? 'Store Logo' : 'Cover Image'}',
+                'Upload ${type == 'profile picture' ? 'Profile Picture' : 'Cover Image'}',
                 style: const TextStyle(
                   fontSize: 20,
                   fontFamily: 'Poppins',
@@ -292,15 +242,16 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
 
                     String? uploadedUrl;
                     if (_selectedImagePath != null) {
-                      uploadedUrl = await profileProvider.uploadFile(
+                      uploadedUrl = await userProfileProvider.uploadFile(
                           _selectedImagePath!, type);
                     } else if (_imageUrlController.text.isNotEmpty) {
                       uploadedUrl = _imageUrlController.text;
                     }
 
                     if (uploadedUrl != null) {
-                      if (type == 'logo') {
-                        profileProvider.storeLogoController.text = uploadedUrl;
+                      if (type == 'profile picture') {
+                        userProfileProvider.profilePictureController.text =
+                            uploadedUrl;
                       }
                       Navigator.pop(context);
                     }
@@ -326,7 +277,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   }
 
   Future<void> _showLocationDialog(
-      BuildContext context, ProfileProvider profileProvider) {
+      BuildContext context, UserProfileProvider userProfileProvider) {
     final TextEditingController addressController = TextEditingController();
     final MapController mapController = MapController();
     LatLng selectedLocation =
@@ -337,15 +288,15 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     Timer? dialogSearchTimer;
 
     // Initialize with existing data if available
-    if (profileProvider.storeAddressController.text.isNotEmpty) {
-      addressController.text = profileProvider.storeAddressController.text;
+    if (userProfileProvider.userAddressController.text.isNotEmpty) {
+      addressController.text = userProfileProvider.userAddressController.text;
     }
 
-    if (profileProvider.latitude.isNotEmpty &&
-        profileProvider.longitude.isNotEmpty) {
+    if (userProfileProvider.latitude.isNotEmpty &&
+        userProfileProvider.longitude.isNotEmpty) {
       selectedLocation = LatLng(
-        double.parse(profileProvider.latitude),
-        double.parse(profileProvider.longitude),
+        double.parse(userProfileProvider.latitude),
+        double.parse(userProfileProvider.longitude),
       );
     }
 
@@ -451,7 +402,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           builder: (context, setState) {
             return AlertDialog(
               title: const Text(
-                'Set Store Location',
+                'Set User Location',
                 style: TextStyle(
                   fontSize: 20,
                   fontFamily: 'Poppins',
@@ -491,7 +442,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                               });
                             },
                             decoration: const InputDecoration(
-                              hintText: 'Search store address',
+                              hintText: 'Search user address',
                               hintStyle: TextStyle(
                                 color: Color(0xFF91958E),
                                 fontSize: 15,
@@ -654,9 +605,9 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Selected Location:',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w600,
                               fontSize: 12,
@@ -703,14 +654,14 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                     if (addressController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Please enter a store address'),
+                          content: Text('Please enter a user address'),
                         ),
                       );
                       return;
                     }
 
                     // Save the location data to the provider
-                    profileProvider.setStoreLocation(
+                    userProfileProvider.setUserLocation(
                       address: addressController.text,
                       latitude: selectedLocation.latitude.toString(),
                       longitude: selectedLocation.longitude.toString(),
@@ -756,9 +707,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileProvider>(
-      builder: (context, profileProvider, child) {
-        
+    return Consumer<UserProfileProvider>(
+      builder: (context, userProfileProvider, child) {
         return Scaffold(
           backgroundColor: const Color(0xFFF6F8FA),
           body: Column(
@@ -768,83 +718,39 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
               // Scrollable content area
               Expanded(
                 child: SingleChildScrollView(
-                  physics:
-                      const AlwaysScrollableScrollPhysics(), // Ensure it's always scrollable
+                  physics: const AlwaysScrollableScrollPhysics(),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Full name field
-                        _buildInputField(profileProvider.fullNameController,
-                            'Full name', 48, profileProvider),
+                        _buildInputField(userProfileProvider.fullNameController,
+                            'Full name', userProfileProvider),
                         const SizedBox(height: 20),
 
-                        // Business name field
-                        _buildInputField(profileProvider.businessNameController,
-                            'Store Name', 48, profileProvider),
+                        // Age and Birthdate fields in a row
+                        _buildAgeAndBirthdateFields(userProfileProvider),
                         const SizedBox(height: 20),
 
                         // Email field
-                        _buildInputField(profileProvider.emailController,
-                            'e-mail', 48, profileProvider),
-                        const SizedBox(height: 20),
-
-                        Container(
-                          height: 48,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: _inputDecoration,
-                          child: TextField(
-                            controller: profileProvider.birthdateController,
-                            readOnly: true,
-                            onTap: () => selectDate(context),
-                            decoration: InputDecoration(
-                              hintText: 'Birth Date',
-                              hintStyle: _hintStyle,
-                              suffixIcon: Icon(Icons.calendar_today),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-
+                        _buildInputField(userProfileProvider.emailController,
+                            'e-mail', userProfileProvider),
                         const SizedBox(height: 20),
 
                         // Phone fields - now placed after email
-                        _buildPhoneFields(profileProvider),
+                        _buildPhoneFields(userProfileProvider),
                         const SizedBox(height: 20),
 
-                        // Store Logo field with upload button
+                        // Profile Picture field with upload button
                         _buildInputFieldWithButton(
-                            profileProvider.storeLogoController,
-                            'Store Logo',
-                            profileProvider),
+                            userProfileProvider.profilePictureController,
+                            'Profile Picture',
+                            userProfileProvider),
                         const SizedBox(height: 20),
 
                         // Location field with location button
-                        _buildLocationField(profileProvider),
-                        const SizedBox(height: 20),
-
-                        _buildInputField(profileProvider.descriptionController, 'Store description', 150, profileProvider),
-                        const SizedBox(height: 20),
-                        // Categories section
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Categories',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500,
-                              height: 1.71,
-                              letterSpacing: 0.50,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Category selection grid
-                        _buildCategoriesGrid(profileProvider),
+                        _buildLocationField(userProfileProvider),
                         const SizedBox(height: 40),
                       ],
                     ),
@@ -852,7 +758,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                 ),
               ),
 
-              _buildRegisterButton(context, profileProvider),
+              _buildRegisterButton(context, userProfileProvider),
             ],
           ),
         );
@@ -879,7 +785,9 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           child: Row(
             children: [
               IconButton(
-                onPressed: logout,
+                onPressed: () {
+                  Navigator.pop(context);
+                },
                 icon: const Icon(Icons.arrow_back),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(
@@ -908,15 +816,15 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildInputField(TextEditingController controller, String hint, double height,
-      ProfileProvider profileProvider) {
+  Widget _buildInputField(TextEditingController controller, String hint,
+      UserProfileProvider userProfileProvider) {
     return Container(
-      height: height,
+      height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: _inputDecoration,
       child: TextField(
         controller: controller,
-        onChanged: (_) => profileProvider.updateValidation(),
+        onChanged: (_) => userProfileProvider.updateValidation(),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: _hintStyle,
@@ -926,8 +834,84 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
+  Widget _buildAgeAndBirthdateFields(UserProfileProvider userProfileProvider) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: _inputDecoration,
+            child: TextField(
+              controller: userProfileProvider.ageController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(3),
+                FilteringTextInputFormatter.digitsOnly,
+              ],
+              onChanged: (_) => userProfileProvider.updateValidation(),
+              decoration: InputDecoration(
+                hintText: 'Age',
+                hintStyle: _hintStyle,
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: _inputDecoration,
+            child: TextField(
+              controller: userProfileProvider.birthdateController,
+              readOnly: true,
+              onTap: () async {
+                final DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: const ColorScheme.light(
+                          primary: Color(0xFFF0D003),
+                          onPrimary: Colors.white,
+                          surface: Colors.white,
+                          onSurface: Colors.black,
+                        ),
+                      ),
+                      child: child!,
+                    );
+                  },
+                );
+                if (picked != null) {
+                  userProfileProvider.birthdateController.text =
+                      "${picked.day}/${picked.month}/${picked.year}";
+                  userProfileProvider.updateValidation();
+                }
+              },
+              decoration: InputDecoration(
+                hintText: 'Birthdate',
+                hintStyle: _hintStyle,
+                border: InputBorder.none,
+                suffixIcon: const Icon(
+                  Icons.calendar_today,
+                  color: Color(0xFF91958E),
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildInputFieldWithButton(TextEditingController controller,
-      String hint, ProfileProvider profileProvider) {
+      String hint, UserProfileProvider userProfileProvider) {
     return Container(
       height: 48,
       decoration: _inputDecoration,
@@ -938,7 +922,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
               padding: const EdgeInsets.only(left: 16),
               child: TextField(
                 controller: controller,
-                onChanged: (_) => profileProvider.updateValidation(),
+                onChanged: (_) => userProfileProvider.updateValidation(),
                 decoration: InputDecoration(
                   hintText: hint,
                   hintStyle: _hintStyle,
@@ -953,8 +937,9 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             padding: const EdgeInsets.only(right: 8),
             child: ElevatedButton(
               onPressed: () {
-                String type = hint.contains('Logo') ? 'logo' : 'cover';
-                _showUploadDialog(context, profileProvider, type);
+                String type =
+                    hint.contains('Picture') ? 'profile picture' : 'cover';
+                _showUploadDialog(context, userProfileProvider, type);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFA9BC8E),
@@ -979,7 +964,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildLocationField(ProfileProvider profileProvider) {
+  Widget _buildLocationField(UserProfileProvider userProfileProvider) {
     return Container(
       height: 48,
       decoration: _inputDecoration,
@@ -990,7 +975,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             child: Padding(
               padding: const EdgeInsets.only(left: 16),
               child: TextField(
-                controller: profileProvider.locationController,
+                controller: userProfileProvider.locationController,
                 readOnly: true,
                 decoration: InputDecoration(
                   hintText: 'Location',
@@ -1004,11 +989,11 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           // Location button
           GestureDetector(
             onTap: () {
-              _showLocationDialog(context, profileProvider);
+              _showLocationDialog(context, userProfileProvider);
             },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: const Icon(
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Icon(
                 Icons.location_on,
                 color: Color(0xFF91958E),
               ),
@@ -1019,7 +1004,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildPhoneFields(ProfileProvider profileProvider) {
+  Widget _buildPhoneFields(UserProfileProvider userProfileProvider) {
     return Row(
       children: [
         Container(
@@ -1028,7 +1013,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: _inputDecoration,
           child: TextField(
-            controller: profileProvider.areaCodeController,
+            controller: userProfileProvider.areaCodeController,
             keyboardType: TextInputType.number,
             inputFormatters: [
               LengthLimitingTextInputFormatter(2),
@@ -1036,7 +1021,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             ],
             onChanged: (value) {
               if (value.isNotEmpty && !value.startsWith('+')) {
-                profileProvider.updateValidation();
+                userProfileProvider.updateValidation();
               }
             },
             decoration: InputDecoration(
@@ -1054,13 +1039,13 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: _inputDecoration,
             child: TextField(
-              controller: profileProvider.phoneNumberController,
+              controller: userProfileProvider.phoneNumberController,
               keyboardType: TextInputType.number,
               inputFormatters: [
                 LengthLimitingTextInputFormatter(10),
                 FilteringTextInputFormatter.digitsOnly,
               ],
-              onChanged: (_) => profileProvider.updateValidation(),
+              onChanged: (_) => userProfileProvider.updateValidation(),
               decoration: InputDecoration(
                 hintText: 'Phone Number',
                 hintStyle: _hintStyle,
@@ -1073,77 +1058,24 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 
-  Widget _buildCategoriesGrid(ProfileProvider profileProvider) {
-    final items = profileProvider.categories.entries.toList();
-
-    return Column(
-      children: [
-        for (int i = 0; i < items.length; i += 2) ...[
-          if (i < items.length)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildSelectionButton(
-                    items[i].key, items[i].value, profileProvider),
-                if (i + 1 < items.length)
-                  _buildSelectionButton(
-                      items[i + 1].key, items[i + 1].value, profileProvider)
-                else
-                  Container(width: 179),
-              ],
-            ),
-          const SizedBox(height: 20),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildSelectionButton(
-      String key, String text, ProfileProvider profileProvider) {
-    final isSelected = profileProvider.getSelectionState(key);
-
-    return TextButton(
-      onPressed: () => profileProvider.toggleSelection(key),
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.zero,
-        minimumSize: const Size(179, 48),
-        backgroundColor:
-            isSelected ? const Color(0xFFDDEAD2) : const Color(0xFFECF1E8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(width: 1, color: Color(0xFFE7EAE5)),
-        ),
-      ),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: isSelected ? const Color(0xFF394E2C) : const Color(0xFF91958E),
-          fontSize: 15,
-          fontFamily: 'Poppins',
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-          height: 1.70,
-        ),
-      ),
-    );
-  }
-
   Widget _buildRegisterButton(
-      BuildContext context, ProfileProvider profileProvider) {
+      BuildContext context, UserProfileProvider userProfileProvider) {
     return SizedBox(
       width: double.infinity,
       height: 90,
       child: ElevatedButton(
-        onPressed: profileProvider.isFormValid && !profileProvider.isLoading
-            ? () async {
-                bool success = await profileProvider.saveProfile();
-                if (success) {
-                  context.push('/registeredsplash');
-                }
-              }
-            : null,
+        onPressed:
+            userProfileProvider.isFormValid && !userProfileProvider.isLoading
+                ? () async {
+                    bool success = await userProfileProvider.saveUserProfile();
+                    if (success) {
+                      // Navigate to success screen or handle success
+                      context.go('/splashscreen');
+                    }
+                  }
+                : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: profileProvider.isFormValid
+          backgroundColor: userProfileProvider.isFormValid
               ? const Color(0xFFF0D003)
               : const Color(0xFFFFEE84),
           foregroundColor: Colors.white,
@@ -1155,12 +1087,12 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           ),
           padding: EdgeInsets.zero,
         ),
-        child: profileProvider.isLoading
+        child: userProfileProvider.isLoading
             ? const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               )
             : const Text(
-                'Register as Farmer',
+                'Register',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,

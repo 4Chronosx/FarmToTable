@@ -55,6 +55,7 @@ dependencies:
   supabase_flutter: ^2.9.0
   image_picker: ^1.0.7
   fl_chart: ^0.68.0
+  uuid: ^4.0.0
 
 
 dev_dependencies:

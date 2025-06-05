@@ -261,7 +261,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        product.name,
+                        product.pname,
                         style: const TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 18,
@@ -298,7 +298,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${product.stock ?? 0}',
+                      '${product.stockQuant ?? 0}',
                       style: const TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 24,
@@ -365,7 +365,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       ],
                     ),
                     child: ElevatedButton.icon(
-                      onPressed: () => _deleteProduct(product.id),
+                      onPressed: () {},
                       icon: const Icon(Icons.delete, size: 16),
                       label: const Text(
                         'Delete',
@@ -400,7 +400,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditProductScreen(productId: product.id),
+        builder: (context) => EditProductScreen(productId: 0),
       ),
     );
   }
@@ -441,8 +441,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
     if (confirmed == true) {
       final inventoryProvider = context.read<InventoryProvider>();
-      final success = await inventoryProvider.deleteProduct(productId);
-
+      //final success = await inventoryProvider.deleteProduct(productId);
+      /*
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -452,7 +452,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
             ),
           ),
         );
-      }
-    }
-  }
+      } */
+    } 
+  } 
 }

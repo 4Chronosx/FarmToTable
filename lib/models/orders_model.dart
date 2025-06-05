@@ -4,11 +4,11 @@
 class OrderModel {
   String prodName;
   String vendorName;
-  String vendorId;
+  int vendorId;
   double price;
   String unit;
   int quantity;
-  int prodId;
+  String prodId;
   String imgPath;
   bool selectedInCart;
 

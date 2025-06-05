@@ -4,7 +4,7 @@ import 'package:farm2you/models/orders_model.dart';
 
 class CheckoutModel {
   String vendorName;
-  String vendorId;
+  int vendorId;
   List<OrderModel> orders;
   double totalPayment;
 
