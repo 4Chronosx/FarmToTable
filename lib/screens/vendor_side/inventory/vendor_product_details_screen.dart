@@ -34,7 +34,7 @@ class _VendorProductDetailsScreenState
             icon: Icon(FontAwesomeIcons.penToSquare),
           ),
           IconButton(
-            onPressed: () => _deleteProduct(widget.product.id),
+            onPressed: () {},
             icon: Icon(FontAwesomeIcons.trash),
           ),
         ],
@@ -70,7 +70,7 @@ class _VendorProductDetailsScreenState
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            widget.product.name,
+                            widget.product.pname,
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 24,
@@ -102,7 +102,7 @@ class _VendorProductDetailsScreenState
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'Product ID: ${widget.product.id}',
+                            'Product ID: ${widget.product.pid}',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 16,
@@ -119,7 +119,7 @@ class _VendorProductDetailsScreenState
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'In Stock: ${widget.product.stock}',
+                            'In Stock: ${widget.product.stockQuant}',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 18,
@@ -190,7 +190,7 @@ class _VendorProductDetailsScreenState
                     color: Color(0xFFFFEE8C)),
               ),
               content: Text(
-                product.description,
+                product.details,
                 textAlign: TextAlign.justify,
                 style: TextStyle(
                   fontFamily: 'Poppins',
@@ -223,7 +223,7 @@ class _VendorProductDetailsScreenState
 
   void _editProduct(ProductModel product) {
     // Navigate to edit product screen using go_router
-    context.push('/editproduct', extra: product.id);
+    context.push('/editproduct', extra: product.pid);
   }
 
   Future<void> _deleteProduct(int productId) async {
@@ -261,9 +261,10 @@ class _VendorProductDetailsScreenState
       ),
     );
 
+    /*
     if (confirmed == true) {
       final inventoryProvider = context.read<InventoryProvider>();
-      final success = await inventoryProvider.deleteProduct(productId);
+      // final success = await inventoryProvider.deleteProduct(productId);
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -286,7 +287,8 @@ class _VendorProductDetailsScreenState
             backgroundColor: Colors.red,
           ),
         );
-      }
-    }
+        
+      } 
+    } */
   }
 }

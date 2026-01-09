@@ -55,6 +55,29 @@ class AuthService {
   }
 
   
+  Future<bool> needsProfile() async {
+    final user = _supabase.auth.currentUser;
+
+    if (user == null) {
+      return false;
+    }
+
+    final response = await _supabase
+      .from('Users')
+      .select()
+      .eq('userID', user.id)
+      .maybeSingle();
+
+    if (response == null) return true;
+    if (response['FName'] == null) {
+      print('FName is null .......................');
+      return true;
+    }
+
+    return false;
+  }
+
+  
 
   
 

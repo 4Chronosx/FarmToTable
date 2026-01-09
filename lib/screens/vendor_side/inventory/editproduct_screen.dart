@@ -80,28 +80,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
   void _loadProductData() {
     final inventoryProvider = context.read<InventoryProvider>();
     final product = inventoryProvider.products.firstWhere(
-      (p) => p.id == widget.productId,
+      (p) => p.pid == widget.productId as String,
       orElse: () => ProductModel(
-        id: 0,
-        name: '',
-        description: '',
+        pid: '',
+        pname: '',
+        details: '',
         price: 0.0,
         unit: 'kg',
-        stock: 0,
+        stockQuant: 0,
         source: '',
         category: 'Fruits',
-        vendor: '',
-        vendorId: '',
+        storeID: 0,
         imgPath: '',
       ),
     );
 
     // Pre-fill the form with existing data
-    _productNameController.text = product.name;
+    _productNameController.text = product.pname;
     _priceController.text = product.price.toString();
-    _descriptionController.text = product.description;
+    _descriptionController.text = product.details;
     _sourceController.text = product.source;
-    _stockController.text = (product.stock ?? 0).toString();
+    _stockController.text = (product.stockQuant ?? 0).toString();
     selectedUnit = product.unit;
     selectedCategory = product.category;
   }
@@ -601,27 +600,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
       width: double.infinity,
       height: 90,
       child: ElevatedButton(
-        onPressed: isFormValid
+        onPressed: /* isFormValid
             ? () async {
                 // Create updated product
                 final updatedProduct = ProductModel(
-                  id: widget.productId, // Use the actual product ID
-                  name: _productNameController.text.trim(),
-                  description: _descriptionController.text.trim(),
+                  pid: '', // Use the actual product ID
+                  pname: _productNameController.text.trim(),
+                  details: _descriptionController.text.trim(),
                   price: double.parse(_priceController.text),
                   unit: selectedUnit,
-                  stock: int.parse(_stockController.text),
+                  stockQuant: int.parse(_stockController.text),
                   source: _sourceController.text.trim(),
                   category: selectedCategory, // Use selected category
-                  vendor: 'Default Vendor',
-                  vendorId: 'vendor_1',
+                  storeID: 0,
                   imgPath: '', // You can add image upload later
                 );
 
+                
                 // Update product using provider
                 final success = await context
                     .read<InventoryProvider>()
-                    .updateProduct(updatedProduct);
+                    .updateProduct(updatedProduct); 
 
                 if (success && mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -646,7 +645,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   );
                 }
               }
-            : null,
+            : */ null,
         style: ElevatedButton.styleFrom(
           backgroundColor:
               isFormValid ? const Color(0xFFF0D003) : const Color(0xFFFFEE84),

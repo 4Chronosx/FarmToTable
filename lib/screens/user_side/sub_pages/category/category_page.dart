@@ -1,6 +1,7 @@
 import 'package:farm2you/commons.dart';
 import 'package:farm2you/models/category_model.dart';
 import 'package:farm2you/models/product_model.dart';
+import 'package:farm2you/services/authentication/inventory_service.dart';
 import 'package:farm2you/widgets/product_widget.dart';
 import 'package:farm2you/widgets/searchbar.dart';
 
@@ -15,10 +16,21 @@ class CategoryPage extends StatefulWidget {
 
 class _CategoryPageState extends State<CategoryPage> {
   List<ProductModel> products = [];
+  final productService = ProductService();
 
-  void _getProducts() {
-    products = ProductModel.getProducts(context);
-  }
+  Future<void> _getProducts() async {
+  final fetchedProducts = await productService.getProductsByCategory(widget.category.name);
+  print("printing list");
+  print(fetchedProducts);
+  setState(() {
+    products = fetchedProducts;
+    //_isLoading = false;
+  });
+}
+
+
+  
+  
 
   @override
   void initState() {
@@ -31,7 +43,7 @@ class _CategoryPageState extends State<CategoryPage> {
     final category = widget.category;
     final screenWidth = MediaQuery.of(context).size.width;
     final List<ProductModel> thisCategoryProducts =
-        products.where((item) => item.category == category.name).toList();
+        products;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -64,7 +76,9 @@ class _CategoryPageState extends State<CategoryPage> {
                   runSpacing: 20,
                   children: thisCategoryProducts.map((item) {
                     return GestureDetector(
-                      onTap: item.onTap,
+                      onTap: () {
+                        context.push('/product_details', extra: item);
+                      },
                       child: productWidget(screenWidth, item));
                   }).toList(),
                 ),

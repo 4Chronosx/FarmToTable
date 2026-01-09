@@ -2,9 +2,11 @@ import 'package:farm2you/commons.dart';
 import 'package:farm2you/models/checkout_model.dart';
 import 'package:farm2you/models/orders_model.dart';
 import 'package:farm2you/models/product_model.dart';
+import 'package:farm2you/services/authentication/inventory_service.dart';
 import 'package:farm2you/utils/cart_provider.dart';
 import 'package:farm2you/utils/checkout_provider.dart';
 import 'package:farm2you/utils/navigation_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final ProductModel product;
@@ -30,33 +32,42 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
     final cartOrdersProvider =
         Provider.of<CartProvider>(context, listen: false);
-    
-    final checkoutProvider = Provider.of<CheckoutProvider>(context);
-      
-    final navProvider = Provider.of<NavigationProvider>(context);
 
-    void addToCart(int cartOrderQuant) {
+    final checkoutProvider = Provider.of<CheckoutProvider>(context);
+
+    final navProvider = Provider.of<NavigationProvider>(context);
+    final productService = ProductService();
+    final SupabaseClient supabase = Supabase.instance.client;
+    final userID = supabase.auth.currentUser!.id;
+
+    void addToCart(int cartOrderQuant) async {
+      final cartID = await productService.fetchCartID(userID);
       if (cartOrderQuant <= 0) return;
+
+      if (cartID == null) {
+        // Handle null cartID properly (e.g. show error, create cart, etc)
+        print('Cart ID not found for user');
+        return;
+      }
+
+      await productService.addToCart(
+          cartID: cartID,
+          productID: product.pid,
+          quantity: cartOrderQuant,
+          isSelected: true);
+      /*
       final newCartOrder = OrderModel(
-          prodName: product.name,
-          vendorName: product.vendor,
+          prodName: product.pname,
+          vendorName: '${product.storeID}',
           price: product.price,
           unit: product.unit,
           quantity: cartOrderQuant,
-          prodId: product.id,
-          vendorId: product.vendorId,
+          prodId: product.pid,
+          vendorId: 0,
           imgPath: product.imgPath,
-          selectedInCart: true);
+          selectedInCart: true); */
 
-      cartOrdersProvider.addOrder(newCartOrder);
-      context.pop();
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.success,
-        text: 'Added to Cart Successfully!',
-        autoCloseDuration: const Duration(seconds: 3),
-        showConfirmBtn: false,
-      );
+      //cartOrdersProvider.addOrder(newCartOrder);
     }
 
     return Scaffold(
@@ -103,8 +114,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                        color: Color(0xFFF0D003 ),
-                                        borderRadius: BorderRadius.circular(30)),
+                                        color: Color(0xFFF0D003),
+                                        borderRadius:
+                                            BorderRadius.circular(30)),
                                     child: Center(
                                         child: Icon(
                                       FontAwesomeIcons.cartShopping,
@@ -120,7 +132,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            product.name,
+                            product.pname,
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 24,
@@ -159,7 +171,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   addToCartButton(context, screenWidth, product, addToCart),
-                  buyNowButton(context, screenWidth, product, cartOrdersProvider, checkoutProvider),
+                  buyNowButton(context, screenWidth, product,
+                      cartOrdersProvider, checkoutProvider),
                 ]),
           )
         ]),
@@ -193,7 +206,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     color: Color(0xFFFFEE8C)),
               ),
               content: Text(
-                product.description,
+                product.details,
                 textAlign: TextAlign.justify,
               )),
           AccordionSection(
@@ -223,7 +236,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     color: Color(0xFFFFEE8C)),
               ),
               content: Text(
-                product.vendor,
+                '${product.storeID}',
                 textAlign: TextAlign.justify,
               )),
         ]);
@@ -235,6 +248,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       onPressed: () {
         bottomSheet(context, screenWidth, product, () {
           addToCart(quantity);
+          context.pop();
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.success,
+            text: 'Added to Cart Successfully!',
+            autoCloseDuration: const Duration(seconds: 3),
+            showConfirmBtn: false,
+          );
         }, 'Add to cart');
         setState(() {
           quantity = 1;
@@ -265,28 +286,31 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   ElevatedButton buyNowButton(
-      BuildContext context, double screenWidth, ProductModel product, CartProvider cartProvider, CheckoutProvider checkoutProvider) {
+      BuildContext context,
+      double screenWidth,
+      ProductModel product,
+      CartProvider cartProvider,
+      CheckoutProvider checkoutProvider) {
     return ElevatedButton(
       onPressed: () {
         bottomSheet(context, screenWidth, product, () {
-
           final buyNowOrder = OrderModel(
-          prodName: product.name,
-          vendorName: product.vendor,
-          price: product.price,
-          unit: product.unit,
-          quantity: quantity,
-          prodId: product.id,
-          vendorId: product.vendorId,
-          imgPath: product.imgPath,
-          selectedInCart: true);
+              prodName: product.pname,
+              vendorName: '${product.storeID}',
+              price: product.price,
+              unit: product.unit,
+              quantity: quantity,
+              prodId: product.pid,
+              vendorId: 0,
+              imgPath: product.imgPath,
+              selectedInCart: true);
 
           final newCheckoutItem = CheckoutModel(
-            vendorName: buyNowOrder.vendorName, 
-            vendorId: buyNowOrder.vendorId,
-            orders: [buyNowOrder],
-            totalPayment: buyNowOrder.price * buyNowOrder.quantity);
-            
+              vendorName: buyNowOrder.vendorName,
+              vendorId: buyNowOrder.vendorId,
+              orders: [buyNowOrder],
+              totalPayment: buyNowOrder.price * buyNowOrder.quantity);
+
           checkoutProvider.addToCheckOutList(newCheckoutItem);
           context.pop();
           Future.delayed(const Duration(seconds: 1), () {
@@ -359,7 +383,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       height: 30,
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: Text('Item: ${product.name}'),
+                        child: Text('Item: ${product.pname}'),
                       ),
                     ),
                     Container(

@@ -1,11 +1,16 @@
+import 'package:farm2you/services/authentication/inventory_service.dart';
+import 'package:farm2you/services/authentication/store_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:farm2you/utils/inventory_provider.dart';
 import 'package:farm2you/models/product_model.dart';
 import 'package:farm2you/utils/vendor_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -74,6 +79,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
       _stockController.text.isNotEmpty &&
       selectedUnit != 'Unit' &&
       selectedCategory != 'Category';
+
+  final productService = ProductService();
+  final SupabaseClient _supabase = Supabase.instance.client;
+  String globalProductId = '';
 
   @override
   Widget build(BuildContext context) {
@@ -576,45 +585,90 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   Widget _buildAddProductButton(BuildContext context) {
+    final vendorProvider = Provider.of<VendorProvider>(context);
+    final storeService = StoreService();
+    final userID = _supabase.auth.currentUser!.id;
+
     return SizedBox(
       width: double.infinity,
       height: 90,
       child: ElevatedButton(
         onPressed: isFormValid
             ? () async {
-                final vendorProvider = context.read<VendorProvider>();
+                try {
+                  // Fetch store name by userID
+                  final storeID = await storeService.getStoreIdByUserId(userID);
+                  final storeName =
+                      await storeService.getStoreNameByStoreID(storeID!);
 
-                final product = ProductModel(
-                  id: 0,
-                  name: _productNameController.text,
-                  description: _descriptionController.text,
-                  source: _sourceController.text,
-                  category: selectedCategory,
-                  vendor: vendorProvider.currentVendorName,
-                  vendorId: vendorProvider.currentVendorId,
-                  imgPath: _selectedImagePath ?? _imageUrlController.text,
-                  price: double.parse(_priceController.text),
-                  unit: selectedUnit,
-                  stock: int.parse(_stockController.text),
-                );
-
-                final success =
-                    await context.read<InventoryProvider>().addProduct(product);
-
-                if (success) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Product added successfully!')),
-                    );
-                    Navigator.pop(context);
+                  if (storeName == null) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Store not found for current user')),
+                      );
+                    }
+                    return;
                   }
-                } else {
+
+                  // Generate productID: first 2 letters uppercase + date yyyyMMdd_HHmmss
+                  final dateTimeString =
+                      DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+                  final prefix = storeName.length >= 2
+                      ? storeName.substring(0, 2).toUpperCase()
+                      : storeName.toUpperCase().padRight(2, 'X');
+                  final generatedProductID = '$prefix$dateTimeString';
+                  globalProductId = generatedProductID;
+
+                  // Build product model or data (depending on your app architecture)
+                  final product = ProductModel(
+                    pid: '', // or however you handle ID
+                    pname: _productNameController.text,
+                    details: _descriptionController.text,
+                    source: _sourceController.text,
+                    category: selectedCategory,
+                    storeID: storeID,
+                    imgPath: _selectedImagePath ?? _imageUrlController.text,
+                    price: double.parse(_priceController.text),
+                    unit: selectedUnit,
+                    stockQuant: int.parse(_stockController.text),
+                  );
+
+                  // Call add product RPC
+                  final success = await productService.addProduct(
+                    pid: generatedProductID,
+                    pname: product.pname,
+                    details: product.details,
+                    source: product.source,
+                    price: product.price,
+                    unit: product.unit,
+                    category: product.category,
+                    stockQuant: product.stockQuant,
+                    storeID: storeID,
+                    imgPath: product.imgPath,
+                  );
+
+                  if (success) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Product added successfully!')),
+                      );
+                      Navigator.pop(context);
+                    }
+                  } else {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text(
+                                'Failed to add product. Please try again.')),
+                      );
+                    }
+                  }
+                } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content:
-                              Text('Failed to add product. Please try again.')),
+                      SnackBar(content: Text('Error: $e')),
                     );
                   }
                 }
@@ -662,12 +716,39 @@ class _AddProductScreenState extends State<AddProductScreen> {
     try {
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image == null) return;
 
-      if (image != null) {
-        setState(() {
-          _selectedImagePath = image.path;
-        });
-      }
+      // Read image as bytes
+      final imageBytes = await image.readAsBytes();
+
+      // Generate path using user ID and timestamp
+      final userID = _supabase.auth.currentUser!.id;
+      final imagePath =
+          '/$userID/productsimg_${DateTime.now().millisecondsSinceEpoch}.png';
+
+      // Upload image to Supabase Storage
+      await _supabase.storage
+          .from('productsimg')
+          .uploadBinary(imagePath, imageBytes);
+
+      // Get public URL for the uploaded image
+      final imageUrl =
+          _supabase.storage.from('productsimg').getPublicUrl(imagePath);
+
+      productService.updateProductImage(
+          newImageUrl: imageUrl, productID: globalProductId);
+
+      /*
+    // Upsert image URL into the 'profiles' table
+    await _supabase.from('Store').upsert({
+      'id': userID,
+      'avatar_url': imageUrl,
+    }); */
+
+      // Update local state
+      setState(() {
+        _selectedImagePath = image.path;
+      });
     } catch (e) {
       debugPrint('Error picking image: $e');
     }

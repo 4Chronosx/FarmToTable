@@ -36,7 +36,7 @@ class ProductSearchBar extends StatelessWidget {
           final String input = controller.value.text;
           final filteredProducts = products
               .where((item) =>
-                  item.name.toLowerCase().contains(input.toLowerCase()))
+                  item.pname.toLowerCase().contains(input.toLowerCase()))
               .toList();
 
           return [
@@ -58,7 +58,7 @@ class ProductSearchBar extends StatelessWidget {
                   runSpacing: 20,
                   children: filteredProducts.map((item) {
                     return GestureDetector(
-                      onTap: item.onTap,
+                      onTap: () {},
                       child: productWidget(screenWidth, item),
                     );
                   }).toList(),

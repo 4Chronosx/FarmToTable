@@ -20,17 +20,18 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     });
   }
 
+  /*
   void _getProducts() {
     setState(() {
-      products = ProductModel.getProducts(context);
+      //products = ProductModel.getProducts(context);
     });
-  }
+  } */
 
   @override
   void initState() {
     super.initState();
     _getCategories();
-    _getProducts();
+    //_getProducts();
   }
 
   @override
@@ -52,7 +53,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
               SizedBox(
                 height: 50,
               ),
-              ProductSearchBar(screenWidth: screenWidth, products: products),
+              //ProductSearchBar(screenWidth: screenWidth, products: products),
               SizedBox(
                 height: 50,
               ),
@@ -95,7 +96,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                     ],
                   )),
               SizedBox(height: 20),
-              recommendationsBuilder(),
+              //recommendationsBuilder(),
               SizedBox(height: 50),
               Container(
                   width: screenWidth,
@@ -196,7 +197,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
           separatorBuilder: (context, index) => SizedBox(width: 20),
           itemBuilder: (context, index) {
             return GestureDetector(
-              onTap: products[index].onTap,
+              onTap: () {},
               child: Container(
                 width: 200,
                 decoration: BoxDecoration(
@@ -240,7 +241,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                     SizedBox(
                       height: 20,
                     ),
-                    Text(products[index].name,
+                    Text(products[index].pname,
                         style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 12,
@@ -250,7 +251,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                     SizedBox(
                       height: 5,
                     ),
-                    Text(products[index].vendor,
+                    Text(products[index].storeID as String,
                         style: TextStyle(
                             fontFamily: 'Lato',
                             fontSize: 10,

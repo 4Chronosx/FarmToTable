@@ -43,7 +43,7 @@ Container productWidget(double screenWidth, ProductModel item) {
         SizedBox(
           height: 20,
         ),
-        Text(item.name,
+        Text(item.pname,
             style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 12,
@@ -52,7 +52,7 @@ Container productWidget(double screenWidth, ProductModel item) {
         SizedBox(
           height: 5,
         ),
-        Text(item.vendor,
+        Text('${item.storeID}',
             style: TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 10,

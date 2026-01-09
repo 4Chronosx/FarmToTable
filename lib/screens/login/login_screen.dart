@@ -3,7 +3,6 @@
 import 'package:farm2you/commons.dart';
 import 'package:farm2you/services/authentication/auth_service.dart';
 import 'package:farm2you/widgets/input_field.dart';
-import 'package:farm2you/utils/vendor_provider.dart';
 import 'package:farm2you/utils/role_provider.dart';
 
 class LoginScreen extends StatefulWidget {

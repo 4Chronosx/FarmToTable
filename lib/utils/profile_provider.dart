@@ -1,3 +1,4 @@
+import 'package:farm2you/services/authentication/create_profile_service.dart';
 import 'package:flutter/material.dart';
 import 'vendor_provider.dart';
 
@@ -15,6 +16,8 @@ class ProfileProvider extends ChangeNotifier {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _storeLogoController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _birthdateController = TextEditingController();
 
   // Store location specific controllers
   final TextEditingController _storeAddressController = TextEditingController();
@@ -48,6 +51,8 @@ class ProfileProvider extends ChangeNotifier {
   TextEditingController get storeLogoController => _storeLogoController;
   TextEditingController get locationController => _locationController;
   TextEditingController get storeAddressController => _storeAddressController;
+  TextEditingController get descriptionController => _descriptionController;
+  TextEditingController get birthdateController => _birthdateController;
 
   // Getters for store location
   String get latitude => _latitude;
@@ -64,6 +69,12 @@ class ProfileProvider extends ChangeNotifier {
   bool get isEggsSelected => _isEggsSelected;
   bool get isGrainsSelected => _isGrainsSelected;
   bool get isOrganicPacksSelected => _isOrganicPacksSelected;
+
+  // setter
+
+  set birthdate(String date) {
+    _birthdateController.text = date;
+  }
 
   // Getters for loading states
   bool get isLoading => _isLoading;
@@ -103,7 +114,8 @@ class ProfileProvider extends ChangeNotifier {
       _phoneNumberController.text.isNotEmpty &&
       _emailController.text.isNotEmpty &&
       _areaCodeController.text.length == 2 &&
-      _phoneNumberController.text.length == 10;
+      _phoneNumberController.text.length == 10 &&
+      _descriptionController.text.isNotEmpty;
 
   // Set store location data
   void setStoreLocation({
@@ -276,6 +288,8 @@ class ProfileProvider extends ChangeNotifier {
     _storeAddressController.text = profileData['storeAddress'] ?? '';
     _latitude = profileData['latitude'] ?? '';
     _longitude = profileData['longitude'] ?? '';
+    _descriptionController.text = profileData['storeDescription'] ?? '';
+    _birthdateController.text = profileData['birthdate'] ?? '';
 
     // Load categories
     List<String> selectedCategories =
@@ -309,8 +323,14 @@ class ProfileProvider extends ChangeNotifier {
       'longitude': _longitude,
       'categories': getSelectedCategoryKeys(),
       'categoryLabels': getSelectedCategories(),
+      'description': _descriptionController.text.trim(),
+      'birthdate': _birthdateController.text.trim(),
     };
   }
+
+
+  
+
 
   // Set loading state
   void setLoading(bool loading) {
@@ -352,29 +372,30 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   // Save profile method
-  Future<bool> saveProfile() async {
-    if (!isFormValid) return false;
+Future<bool> saveProfile() async {
+  if (!isFormValid) return false;
 
-    setLoading(true);
-    try {
-      final profileData = getProfileData();
+  setLoading(true);
+  try {
+    final profileData = getProfileData(); // This should return a map or model
+    final service = CreateProfileService();
 
-      // Create vendor profile with generated ID
-      _vendorProvider.setVendorFromProfile(profileData);
+    // Upload profile to Supabase via service
+    await service.submitProfile(profileData);
 
-      // Simulate API call for profile save
-      await Future.delayed(const Duration(seconds: 2));
+    _vendorProvider.setVendorFromProfile(profileData);
+    debugPrint('Profile saved: $profileData');
+    debugPrint('Vendor ID generated: ${_vendorProvider.currentVendorId}');
 
-      debugPrint('Profile saved: $profileData');
-      debugPrint('Vendor ID generated: ${_vendorProvider.currentVendorId}');
-      return true;
-    } catch (e) {
-      debugPrint('Save error: $e');
-      return false;
-    } finally {
-      setLoading(false);
-    }
+    return true;
+  } catch (e) {
+    debugPrint('Save error: $e');
+    return false;
+  } finally {
+    setLoading(false);
   }
+}
+
 
   // Trigger form validation update
   void updateValidation() {

@@ -5,10 +5,10 @@ import 'package:farm2you/models/orders_model.dart';
 class CheckoutProvider extends ChangeNotifier {
   final List<CheckoutModel> checkoutList = [];
 
-
+  
   Map<String, List<OrderModel>> _sortOrders(List<OrderModel> orders) {
     return orders.fold({}, (map, order) {
-      map.putIfAbsent(order.vendorId, () => []).add(order);
+      map.putIfAbsent(order.vendorName, () => []).add(order);
       return map;
     });
   }
