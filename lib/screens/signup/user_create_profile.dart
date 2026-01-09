@@ -58,7 +58,7 @@ class _UserCreateProfileScreenState extends State<UserCreateProfileScreen> {
         final response = await http.get(
           Uri.parse(url),
           headers: {
-            'User-Agent': 'Farm2You/1.0 (Flutter App)', // Add user agent
+            'User-Agent': 'Farm2You/1.0 (Flutter App)', // Add user agen
           },
         );
 
